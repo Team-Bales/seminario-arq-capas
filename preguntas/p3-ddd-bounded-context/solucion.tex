@@ -101,9 +101,10 @@ Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de \enquote{P
       & expediente, declaración, reserva, indemnización
       & Cobertura aplicable en la fecha del siniestro \\
     Peritaje (ajustadores)
-      & Evaluar daños en el lugar del accidente y emitir el informe pericial
+      & Recibir solicitudes de peritaje, asignar ajustadores, evaluar daños en el lugar
+        del accidente y emitir el informe pericial
       & inspección, daño, valoración, informe pericial
-      & Número de referencia que identifica al vehículo asegurado \\
+      & Número de póliza usado como mera referencia del vehículo asegurado \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -148,7 +149,7 @@ El aislamiento del modelo se consigue combinando cinco mecanismos.
         distingue la duplicación verdadera, en la que todo cambio en una copia exige el
         mismo cambio en las demás, de la accidental, en la que las copias evolucionan por
         caminos distintos. Unificar la duplicación accidental crea un acoplamiento difícil
-        de deshacer. Suscripción y Siniestros manejan ambos datos de
+        de deshacer. Ambos contextos, Suscripción y Siniestros, manejan datos de
         cobertura (límites, franquicia, vigencia). Suscripción los modela como cláusulas
         de un contrato que se negocian y renuevan; Siniestros solo necesita una
         instantánea para resolver un expediente. Las dos estructuras cambiarán por
@@ -208,7 +209,7 @@ consistencia eventual. La propuesta combina ambos (Figura~\ref{fig:p3-mapa}).
     \node[ctx] (sin) at (0,-5.4)  {\textbf{Siniestros}\\[2pt]
                                    Póliza = cobertura aplicable\\ en la fecha del siniestro};
     \node[ctx] (per) at (9.6,-5.4) {\textbf{Peritaje}\\[2pt]
-                                   Póliza = número de referencia\\ del vehículo asegurado};
+                                   Póliza = número de póliza,\\ usado como mera referencia};
 
     \draw[ev] ([yshift=5mm]sus.east) -- node[lbl,above=1pt]
       {PólizaEmitida, PólizaRenovada,\\ PólizaModificada, PólizaSuspendida,\\ PólizaCancelada}
@@ -290,18 +291,26 @@ Dos decisiones de la tabla merecen justificación:
         asegurado aportó al declarar el siniestro. Así, el ajustador no depende de una
         consulta síncrona desde el lugar del accidente.
 \end{itemize}
-Además, que cada contexto anuncie lo que hizo aunque hoy nadie lo escuche facilita la
-extensibilidad \parencite[cap.~14]{richardsford2020}: un futuro contexto de detección de
-fraude podría suscribirse a los eventos de Siniestros sin modificar ese contexto.
 
-\paragraph{Consulta síncrona solo donde se necesita certeza.}
-Al abrir un expediente, Siniestros debe saber con certeza si existía cobertura en la
-fecha del accidente. Es una consulta de datos determinista, el caso para el que se
+\paragraph{Extensibilidad.}
+Que cada contexto anuncie lo que hizo, aunque hoy nadie lo escuche, facilita la
+extensibilidad \parencite[cap.~14]{richardsford2020}. Por ejemplo, un futuro contexto de
+detección de fraude podría suscribirse a los eventos de Siniestros sin modificar ese
+contexto.
+
+\paragraph{Consulta síncrona solo donde se necesita una respuesta inmediata.}
+Al abrir un expediente, Siniestros necesita saber, con la información más actualizada
+posible, si existía cobertura en la fecha del accidente. Es una consulta de datos determinista, el caso para el que se
 recomienda el modelo basado en peticiones \parencite[cap.~14]{richardsford2020}. En el
 diseño se implementa como una consulta síncrona a la API publicada de Suscripción
 (Listado~\ref{lst:p3-agente}). Dentro de una arquitectura dirigida por eventos, la
 alternativa equivalente sería la mensajería petición--respuesta
-\parencite[cap.~14]{richardsford2020}. Esta es la única interacción síncrona del diseño;
+\parencite[cap.~14]{richardsford2020}. Se prefiere la API porque, para una única
+interacción, evita añadir colas de petición y de respuesta. Otra alternativa sería
+mantener en Siniestros una réplica local de las coberturas, alimentada por los eventos de
+póliza. Eliminaría la dependencia temporal, pero la verificación también pasaría a ser
+eventualmente consistente; el diseño prioriza la información actualizada y deja la réplica
+como evolución posible. Esta es la única interacción síncrona del diseño;
 su coste se analiza en la Sección~\ref{sec:p3-valoracion}.
 
 \paragraph{Sin transacciones distribuidas.}
@@ -313,7 +322,8 @@ la consistencia eventual: durante un breve intervalo, una póliza recién emitid
 tener todavía su plan de cobro.
 
 \paragraph{Contratos publicados, no modelos.}
-Los mensajes transportan identificadores y los datos mínimos en un formato publicado.
+Los mensajes transportan identificadores y solo los datos que cada consumidor necesita, en
+un formato publicado.
 Nunca transportan objetos del modelo interno: cada consumidor traduce el mensaje a su
 propio modelo (mecanismo M5 de la Sección~\ref{sec:p3-contaminacion}).
 
@@ -332,13 +342,13 @@ tercero lo formula la Guía de Arquitectura N-Capas:
   \item \textbf{La Regla de Dependencia.} Las dependencias del código fuente solo pueden
         apuntar hacia adentro, hacia las políticas de más alto nivel
         \parencite[203]{martin2017}.
-  \item \textbf{El dominio desacoplado.} La Guía insiste en desacoplar la capa de Dominio
+  \item \textbf{El dominio desacoplado y una Capa de Aplicación delgada.} La Guía insiste en desacoplar la capa de Dominio
         mediante contratos, interfaces, inyección de dependencias e inversión de control,
         para que las reglas de negocio queden aisladas y soporten un ritmo alto de cambios
         \parencite[159]{delatorre2010}. La Capa de Aplicación debe ser delgada: coordina
         las tareas y las conversiones de formato, pero no contiene lógica de negocio
-        \parencite[247]{delatorre2010}. Por \enquote{lógica de negocio} la Guía entiende
-        aquí la lógica del dominio. En la terminología de Martin, los casos de uso sí
+        \parencite[247]{delatorre2010}. Interpretamos que, en este pasaje, la Guía llama
+        \enquote{lógica de negocio} a la lógica del dominio. En la terminología de Martin, los casos de uso sí
         contienen reglas de negocio propias de la aplicación, mientras que las reglas
         críticas residen en las entidades \parencite[204]{martin2017}.
 \end{itemize}
@@ -412,10 +422,10 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
 
 \paragraph{El Adaptador de Servicio.}
 Lo que el enunciado llama \enquote{Adaptador de Servicio} corresponde en la Guía a los
-\emph{Agentes de Servicios externos}.\footnote{La Guía usa también el término
-\enquote{Agente de Servicio} para un componente de la capa de presentación que consume
-servicios distribuidos \parencite[269]{delatorre2010}. Es un uso distinto, que no
-corresponde al que se emplea aquí.} Según la Guía, estos agentes:
+\emph{Agentes de Servicios externos}.\footnote{La Guía emplea además
+\enquote{Agente de Servicio} en otro sentido: un componente de la capa de presentación
+que consume servicios distribuidos \parencite[269]{delatorre2010}. En esta respuesta,
+\enquote{Agente de Servicio} designa siempre a un agente de servicios externos.} Según la Guía, estos agentes:
 \begin{itemize}
   \item gestionan la semántica de comunicación con un servicio externo y mapean entre su
         formato de datos y el de la aplicación \parencite[108]{delatorre2010};
@@ -506,7 +516,9 @@ Tiene, sin embargo, costes que deben asumirse de forma consciente:
         el mismo riesgo por el que se evitó acoplar de forma síncrona a Peritaje
         (criterio C4). Como mitigación, propia de este diseño, Siniestros puede registrar
         el expediente en estado \enquote{cobertura pendiente de verificar} y completar la
-        verificación cuando Suscripción responda, sin bloquear la atención al asegurado.
+        verificación cuando Suscripción responda, sin bloquear la atención al asegurado. Para
+        ello, el puerto \texttt{IConsultaCobertura} debe contemplar el fallo de la
+        llamada; el Listado~\ref{lst:p3-agente} omite ese manejo por brevedad.
   \item \textbf{Más infraestructura y riesgo de granularidad excesiva.} Hay que operar un
         bróker de mensajes. Además, el error frecuente de crear servicios demasiado
         pequeños obliga después a reconstruir enlaces de comunicación entre ellos
