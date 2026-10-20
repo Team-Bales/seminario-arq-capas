@@ -50,21 +50,25 @@ integración \parencite[cap.~7]{richardsford2020}. Para trazar las fronteras en 
 la aseguradora se aplican cuatro criterios:
 
 \begin{enumerate}[label=\textbf{C\arabic*.}, leftmargin=2.2em]
-  \item \textbf{Lenguaje.} Cada grupo de expertos con un vocabulario propio delimita un
-        modelo \parencite[21]{delatorre2010}.
+  \item \textbf{Lenguaje.} Cada área cuyos expertos usan un vocabulario propio es
+        candidata a un contexto propio. El criterio se deriva de que el modelo debe
+        expresarse en el Lenguaje Ubicuo de los expertos \parencite[21]{delatorre2010} y
+        de que cada entidad funciona mejor dentro de un contexto localizado
+        \parencite[cap.~7]{richardsford2020}.
   \item \textbf{Partición por dominio, no técnica.} Si los componentes se organizan por
         capas técnicas, cada flujo de negocio queda repartido entre todas ellas. Si se
         organizan por dominio, la estructura refleja mejor los cambios que realmente
         ocurren \parencite[cap.~8]{richardsford2020}.
   \item \textbf{Granularidad.} Cada contexto debe tener un propósito funcionalmente
         cohesivo. Las entidades que necesitan cooperar en una misma transacción sugieren
-        una frontera común. Si dos contextos necesitan comunicarse en exceso, conviene
-        fusionarlos \parencite[cap.~17]{richardsford2020}.
-  \item \textbf{Características operativas.} Las partes que se despliegan de forma
-        independiente y tienen alta cohesión funcional forman un \emph{cuanto
-        arquitectónico}. Acoplar de forma síncrona partes con características operativas
-        muy distintas les impone las mismas exigencias durante cada llamada
-        \parencite[cap.~7]{richardsford2020}.
+        una frontera común. Si dos contextos necesitan comunicarse en exceso, puede
+        considerarse fusionarlos \parencite[cap.~17]{richardsford2020}.
+  \item \textbf{Características operativas.} Un \emph{cuanto arquitectónico} es un
+        artefacto desplegable de forma independiente, con alta cohesión funcional y
+        connascencia síncrona. Una llamada síncrona obliga a que las dos partes tengan
+        las mismas características operativas mientras dura la llamada
+        \parencite[cap.~7]{richardsford2020}. Por eso conviene no acoplar de forma
+        síncrona partes con exigencias operativas muy distintas.
 \end{enumerate}
 
 Con estos criterios se proponen cuatro contextos delimitados, resumidos en la
@@ -140,47 +144,53 @@ El aislamiento del modelo se consigue combinando cinco mecanismos.
         coberturas. Siniestros maneja una \emph{cobertura aplicable} y Facturación una
         \emph{cuenta de cobro}.
 
-  \item \textbf{Aceptar la duplicación accidental.} Martin distingue la duplicación
-        verdadera, en la que todo cambio en una copia exige el mismo cambio en las demás,
-        de la accidental, en la que las copias evolucionan por caminos distintos. Unificar
-        la duplicación accidental crea un acoplamiento difícil de deshacer
-        \parencite[154--155]{martin2017}. El número de póliza o las fechas de vigencia
-        aparecen en varios contextos, pero cada uno los usa por razones distintas. Por
-        eso, cuando el objetivo es el desacoplamiento, se prefiere la duplicación a la
-        reutilización \parencite[cap.~17]{richardsford2020}.
+  \item \textbf{Aceptar la duplicación accidental.} \textcite[154--155]{martin2017}
+        distingue la duplicación verdadera, en la que todo cambio en una copia exige el
+        mismo cambio en las demás, de la accidental, en la que las copias evolucionan por
+        caminos distintos. Unificar la duplicación accidental crea un acoplamiento difícil
+        de deshacer. Suscripción y Siniestros manejan ambos datos de
+        cobertura (límites, franquicia, vigencia). Suscripción los modela como cláusulas
+        de un contrato que se negocian y renuevan; Siniestros solo necesita una
+        instantánea para resolver un expediente. Las dos estructuras cambiarán por
+        razones distintas, así que su parecido es accidental. Cuando el objetivo es el
+        desacoplamiento, se prefiere la duplicación a la reutilización
+        \parencite[cap.~17]{richardsford2020}. El número de póliza, en cambio, no es una
+        duplicación: es un identificador compartido que sirve de referencia entre
+        contextos (mecanismo M3).
 
   \item \textbf{Fronteras de agregado y referencias por identidad.} Un agregado es un
-        conjunto de objetos con una entidad raíz como único punto de entrada; desde fuera
-        solo puede referenciarse esa raíz \parencite[172]{delatorre2010}. En Suscripción,
-        la Póliza es la raíz de un agregado que contiene sus coberturas y cláusulas.
-        Llevando esta regla a la relación entre contextos, los demás contextos se refieren
-        a la póliza solo por su número de póliza, nunca por su estructura interna.
+        conjunto de objetos asociados que se trata como una unidad frente a los cambios
+        de datos. Tiene una entidad raíz como único punto de entrada, y desde fuera solo
+        puede referenciarse esa raíz, lo que asegura la integridad de los datos
+        \parencite[172]{delatorre2010}. En Suscripción, la Póliza es la raíz de un
+        agregado que contiene sus coberturas y cláusulas. Por analogía, la propuesta
+        aplica la misma regla entre contextos: los demás contextos se refieren a la póliza
+        solo por su número de póliza, nunca por su estructura interna.
 
   \item \textbf{Datos aislados.} Cada contexto tiene su propio almacenamiento y no se
         integra a través de esquemas compartidos \parencite[cap.~17]{richardsford2020}.
 
   \item \textbf{Traducción en la frontera.} La información que llega de otro contexto
         entra solo a través de un componente que la convierte al modelo local. Los
-        Agentes de Servicios de la Guía hacen exactamente eso: transforman el formato de
-        los datos del servicio externo al formato que usa la propia aplicación
-        \parencite[155--156]{delatorre2010}. Un adaptador cumple el mismo papel en la
-        Arquitectura Hexagonal: la aplicación interactúa con él sin conocer la naturaleza
-        de lo que hay al otro lado \parencite{cockburn2005}.\footnote{En la terminología
-        original de DDD, a este mecanismo de traducción defensiva se le suele llamar
-        \textit{Anti-Corruption Layer}. Se menciona solo como orientación terminológica:
-        la fundamentación de esta respuesta se apoya en los Agentes de Servicios
-        \parencite{delatorre2010} y en los adaptadores \parencite{cockburn2005,martin2017}
-        de la bibliografía consultada.}
+        Agentes de Servicios externos de la Guía cumplen este papel: entre otras tareas,
+        realizan mapeos básicos entre el formato de datos del servicio externo y el que usa
+        la propia aplicación \parencite[108, 155]{delatorre2010}. Un adaptador cumple la
+        misma función en la Arquitectura Hexagonal: la aplicación interactúa con él sin
+        conocer la naturaleza de lo que hay al otro lado
+        \parencite{cockburn2005}.\footnote{En la terminología original de DDD, este
+        mecanismo de traducción defensiva se conoce como \textit{Anti-Corruption Layer}.
+        El término se menciona solo como orientación, porque no procede de las fuentes
+        consultadas.}
 \end{enumerate}
 
 \subsection{Comunicación desacoplada entre contextos}
 \label{sec:p3-comunicacion}
 
-Richards y Ford distinguen dos modelos de interacción. El modelo basado en peticiones es
-el adecuado para consultas de datos estructuradas que necesitan certeza y control del
-flujo. El modelo basado en eventos es el adecuado para acciones que requieren capacidad de
-respuesta, escalabilidad y adaptabilidad, a cambio de admitir solo consistencia eventual
-\parencite[cap.~14]{richardsford2020}. La propuesta combina ambos (Figura~\ref{fig:p3-mapa}).
+\textcite[cap.~14]{richardsford2020} distinguen dos modelos de interacción. El modelo
+basado en peticiones es el adecuado para consultas de datos estructuradas que necesitan
+certeza y control del flujo. El modelo basado en eventos es el adecuado para acciones que
+requieren capacidad de respuesta, escalabilidad y adaptabilidad, a cambio de admitir solo
+consistencia eventual. La propuesta combina ambos (Figura~\ref{fig:p3-mapa}).
 
 \begin{figure}[htbp]
   \centering
@@ -201,7 +211,7 @@ respuesta, escalabilidad y adaptabilidad, a cambio de admitir solo consistencia 
                                    Póliza = número de referencia\\ del vehículo asegurado};
 
     \draw[ev] ([yshift=5mm]sus.east) -- node[lbl,above=1pt]
-      {PólizaEmitida, PólizaModificada,\\ PólizaSuspendida, PólizaCancelada}
+      {PólizaEmitida, PólizaRenovada,\\ PólizaModificada, PólizaSuspendida,\\ PólizaCancelada}
       ([yshift=5mm]fac.west);
     \draw[ev] ([yshift=-5mm]fac.west) -- node[lbl,below=1pt]{PagoVencido}
       ([yshift=-5mm]sus.east);
@@ -212,16 +222,15 @@ respuesta, escalabilidad y adaptabilidad, a cambio de admitir solo consistencia 
     \draw[ev] ([xshift=-12mm]sin.north) -- node[lbl,left=1pt]{SiniestroLiquidado}
       ([xshift=-12mm]sus.south);
     \draw[sync] ([xshift=12mm]sin.north) -- node[lbl,right=1pt]
-      {ConsultarCobertura\\(petición--respuesta)} ([xshift=12mm]sus.south);
+      {ConsultarCobertura\\(consulta síncrona\\a la API publicada)} ([xshift=12mm]sus.south);
 
     \draw[ev]   (-2.4,-7.3) -- ++(1.1,0) node[right,font=\scriptsize]
       {evento de dominio asíncrono (bróker, publicar/suscribir)};
     \draw[sync] (7.4,-7.3) -- ++(1.1,0) node[right,font=\scriptsize]
       {consulta síncrona};
   \end{tikzpicture}
-  \caption{Mapa de contextos propuesto. Los eventos viajan a través de un bróker de
-           mensajes con topología \textit{broker}; la flecha discontinua es la única
-           interacción síncrona.}
+  \caption{Mapa de contextos propuesto. Los eventos se publican en un bróker de
+           mensajes; la flecha discontinua es la única interacción síncrona.}
   \label{fig:p3-mapa}
 \end{figure}
 
@@ -234,7 +243,8 @@ mediador global, respeta la filosofía del contexto delimitado
 \parencite[cap.~17]{richardsford2020}. La difusión de eventos es probablemente el mayor
 grado de desacoplamiento posible, porque el productor desconoce quién recibe el mensaje y
 qué hace con él \parencite[cap.~14]{richardsford2020}. La Tabla~\ref{tab:p3-eventos}
-detalla los flujos propuestos.
+detalla los flujos principales. No pretende ser exhaustiva: otros casos, como la
+regularización de un pago o la cancelación de un peritaje, seguirían el mismo patrón.
 
 \begin{table}[htbp]
   \centering
@@ -249,12 +259,15 @@ detalla los flujos propuestos.
     \toprule
     \textbf{Mensaje} & \textbf{Publica} & \textbf{Consume} & \textbf{Reacción del consumidor} \\
     \midrule
-    PólizaEmitida, PólizaModificada, PólizaSuspendida, PólizaCancelada
-      & Suscripción & Facturación & Crea, ajusta, suspende o cierra el plan de cobro \\
+    PólizaEmitida, PólizaRenovada, PólizaModificada, PólizaSuspendida, PólizaCancelada
+      & Suscripción & Facturación
+      & Crea, ajusta, suspende o cierra el plan de cobro; el evento incluye el número de
+        póliza, la prima y el calendario de pagos \\
     PagoVencido & Facturación & Suscripción
       & Decide, según las cláusulas del contrato, si suspende la póliza \\
     PeritajeSolicitado & Siniestros & Peritaje
-      & Asigna un ajustador; el evento incluye la referencia de póliza y los datos del vehículo \\
+      & Asigna un ajustador; el evento incluye la referencia de póliza y los datos del
+        vehículo y del lugar recogidos en la declaración del siniestro \\
     PeritajeCompletado & Peritaje & Siniestros & Incorpora la valoración de daños al expediente \\
     SiniestroLiquidado & Siniestros & Suscripción
       & Actualiza el historial de siniestralidad que se usa en las renovaciones \\
@@ -273,8 +286,9 @@ Dos decisiones de la tabla merecen justificación:
         contractuales no se filtran a Facturación y los datos de cobro no se filtran a la
         Póliza.
   \item \textbf{Peritaje recibe lo que necesita.} El evento \texttt{PeritajeSolicitado}
-        incluye la referencia de póliza y los datos del vehículo, de modo que el ajustador
-        no depende de una consulta síncrona desde el lugar del accidente.
+        incluye la referencia de póliza y los datos del vehículo y del lugar que el
+        asegurado aportó al declarar el siniestro. Así, el ajustador no depende de una
+        consulta síncrona desde el lugar del accidente.
 \end{itemize}
 Además, que cada contexto anuncie lo que hizo aunque hoy nadie lo escuche facilita la
 extensibilidad \parencite[cap.~14]{richardsford2020}: un futuro contexto de detección de
@@ -283,9 +297,12 @@ fraude podría suscribirse a los eventos de Siniestros sin modificar ese context
 \paragraph{Consulta síncrona solo donde se necesita certeza.}
 Al abrir un expediente, Siniestros debe saber con certeza si existía cobertura en la
 fecha del accidente. Es una consulta de datos determinista, el caso para el que se
-recomienda el modelo basado en peticiones; dentro de una arquitectura dirigida por
-eventos se resuelve con mensajería petición--respuesta
-\parencite[cap.~14]{richardsford2020}. Esta es la única interacción síncrona del diseño.
+recomienda el modelo basado en peticiones \parencite[cap.~14]{richardsford2020}. En el
+diseño se implementa como una consulta síncrona a la API publicada de Suscripción
+(Listado~\ref{lst:p3-agente}). Dentro de una arquitectura dirigida por eventos, la
+alternativa equivalente sería la mensajería petición--respuesta
+\parencite[cap.~14]{richardsford2020}. Esta es la única interacción síncrona del diseño;
+su coste se analiza en la Sección~\ref{sec:p3-valoracion}.
 
 \paragraph{Sin transacciones distribuidas.}
 Emitir una póliza y crear su plan de cobro no forman una transacción atómica. Construir
@@ -304,7 +321,9 @@ propio modelo (mecanismo M5 de la Sección~\ref{sec:p3-contaminacion}).
 \label{sec:p3-arquitectura}
 
 Los contextos delimitados organizan el sistema a gran escala. Internamente, cada contexto
-se construye como una Arquitectura Onion o Limpia, que comparten tres principios:
+se construye según la Arquitectura Cebolla (Onion) o la Arquitectura Limpia (Clean). El
+diseño se apoya en tres principios. Los dos primeros son propios de estos estilos; el
+tercero lo formula la Guía de Arquitectura N-Capas:
 \begin{itemize}
   \item \textbf{El dominio en el centro.} El modelo de dominio ocupa el centro y todo el
         acoplamiento apunta hacia él. Las interfaces se definen en el núcleo y las
@@ -313,12 +332,15 @@ se construye como una Arquitectura Onion o Limpia, que comparten tres principios
   \item \textbf{La Regla de Dependencia.} Las dependencias del código fuente solo pueden
         apuntar hacia adentro, hacia las políticas de más alto nivel
         \parencite[203]{martin2017}.
-  \item \textbf{El dominio desacoplado.} La Guía insiste en desacoplar la capa de dominio
+  \item \textbf{El dominio desacoplado.} La Guía insiste en desacoplar la capa de Dominio
         mediante contratos, interfaces, inyección de dependencias e inversión de control,
         para que las reglas de negocio queden aisladas y soporten un ritmo alto de cambios
         \parencite[159]{delatorre2010}. La Capa de Aplicación debe ser delgada: coordina
         las tareas y las conversiones de formato, pero no contiene lógica de negocio
-        \parencite[247]{delatorre2010}.
+        \parencite[247]{delatorre2010}. Por \enquote{lógica de negocio} la Guía entiende
+        aquí la lógica del dominio. En la terminología de Martin, los casos de uso sí
+        contienen reglas de negocio propias de la aplicación, mientras que las reglas
+        críticas residen en las entidades \parencite[204]{martin2017}.
 \end{itemize}
 
 La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
@@ -337,12 +359,12 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
     ]
     % Capas concéntricas (de afuera hacia adentro)
     \draw[capa, fill=azul!4]  (-7.8,-4.9) rectangle (7.8,4.1);
-    \draw[capa, fill=azul!10] (-6.2,-2.65) rectangle (6.2,2.35);
+    \draw[capa, fill=azul!10] (-7.45,-2.65) rectangle (7.45,2.35);
     \draw[capa, fill=azul!18] (-5.4,-2.15) rectangle (5.4,1.75);
     \draw[capa, fill=azul!30] (-3.4,-0.55) rectangle (3.4,1.05);
 
     \node[tit] at (0,3.75) {Infraestructura: adaptadores (detalles tecnológicos)};
-    \node[tit] at (0,2.05) {Aplicación: casos de uso AbrirSiniestro · RegistrarPeritaje};
+    \node[tit] at (0,2.05) {Aplicación (casos de uso): \mdseries AbrirSiniestro · SolicitarPeritaje · RegistrarPeritaje · LiquidarSiniestro};
     \node[tit] at (0,1.40) {Servicios de dominio y puertos (interfaces del núcleo)};
     \node[font=\small, align=center] at (0,0.25)
       {\textbf{Modelo de dominio}\\[1pt]\footnotesize Siniestro (raíz del agregado) · CoberturaAplicable};
@@ -365,7 +387,7 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
     % Sistemas externos
     \node[ext] (x1) at (-4.7,-6.0) {API publicada de\\Suscripción y Pólizas};
     \node[ext] (x2) at (0,-6.0)    {Base de datos propia\\de Siniestros};
-    \node[ext] (x3) at (4.7,-6.0)  {Bróker de eventos};
+    \node[ext] (x3) at (4.7,-6.0)  {Bróker de mensajes};
 
     \draw[impl] (a1) -- (p1);
     \draw[impl] (a2) -- (p2);
@@ -401,9 +423,10 @@ corresponde al que se emplea aquí.} Según la Guía, estos agentes:
         interfaces, el servicio puede sustituirse por otro sin afectar al sistema
         \parencite[58]{delatorre2010};
   \item en aplicaciones grandes actúan como nivel de abstracción entre la capa de
-        Dominio y los servicios remotos, con una interfaz homogénea, y conviene
-        desacoplarlos mediante inversión de control para simularlos con \textit{fakes} en
-        las pruebas unitarias \parencite[155--156]{delatorre2010}.
+        Dominio y los servicios remotos, con una interfaz homogénea. Conviene
+        desacoplarlos mediante inversión de control, lo que permite simular los servicios
+        externos con \textit{fakes} durante el desarrollo y probar los propios agentes de
+        forma unitaria \parencite[155--156]{delatorre2010}.
 \end{itemize}
 
 Es la misma idea que el adaptador de la Arquitectura Hexagonal
@@ -448,8 +471,10 @@ barrera física que impide que el modelo de Póliza de Suscripción entre en el 
 Siniestros, y aporta tres beneficios:
 \begin{itemize}
   \item un cambio en la API o en el formato de Suscripción solo afecta a este adaptador;
-  \item el dominio de Siniestros puede probarse de forma aislada sustituyendo el agente
-        por un \textit{fake} \parencite[156]{delatorre2010};
+  \item el dominio de Siniestros puede probarse de forma aislada con una implementación
+        simulada del puerto, del mismo modo que la Arquitectura Hexagonal permite
+        desarrollar y probar la aplicación aislada de sus dispositivos y bases de datos
+        \parencite{cockburn2005};
   \item como el núcleo solo conoce la interfaz \texttt{IConsultaCobertura}, se respeta la
         Regla de Dependencia \parencite[203]{martin2017}.
 \end{itemize}
@@ -472,12 +497,19 @@ Tiene, sin embargo, costes que deben asumirse de forma consciente:
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{Duplicación de datos y de código entre contextos}, que es el precio del
         desacoplamiento \parencite[cap.~17]{richardsford2020}.
-  \item \textbf{Consistencia eventual.} Además, la topología \textit{broker} complica el
-        control del flujo, la gestión de errores y la recuperación, porque ningún
+  \item \textbf{Consistencia eventual y menor control del flujo.} Los contextos pueden
+        estar momentáneamente desalineados. Además, la topología \textit{broker} complica
+        el control del flujo, la gestión de errores y la recuperación, porque ningún
         componente supervisa el proceso completo \parencite[cap.~14]{richardsford2020}.
+  \item \textbf{Dependencia temporal en la consulta síncrona.} Si Suscripción no está
+        disponible, Siniestros no puede verificar la cobertura al abrir un expediente. Es
+        el mismo riesgo por el que se evitó acoplar de forma síncrona a Peritaje
+        (criterio C4). Como mitigación, propia de este diseño, Siniestros puede registrar
+        el expediente en estado \enquote{cobertura pendiente de verificar} y completar la
+        verificación cuando Suscripción responda, sin bloquear la atención al asegurado.
   \item \textbf{Más infraestructura y riesgo de granularidad excesiva.} Hay que operar un
-        bróker de mensajes, y el error frecuente de crear servicios demasiado pequeños
-        obliga después a reconstruir enlaces de comunicación entre ellos
+        bróker de mensajes. Además, el error frecuente de crear servicios demasiado
+        pequeños obliga después a reconstruir enlaces de comunicación entre ellos
         \parencite[cap.~17]{richardsford2020}.
 \end{enumerate}
 
@@ -487,4 +519,4 @@ dominio probablemente no compensa \parencite[42]{delatorre2010}. No es el caso d
 aseguradora: cuatro áreas con lenguajes propios y reglas contractuales, de cobro y de
 peritaje que evolucionan de forma independiente son justamente el escenario en el que la
 división en contextos delimitados, comunicados por eventos y protegidos por Agentes de
-Servicio, aporta más valor que coste.
+Servicios externos, aporta más valor que coste.
