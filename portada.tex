@@ -1,0 +1,91 @@
+% ============================================================
+% portada.tex — Página de presentación de SemArq1_TeamBales
+% Propiedad del issue #13. Se carga con \input{portada} en el
+% preámbulo y se usa con \portada tras \begin{document}.
+%
+% Cumple los 5 puntos de «Página de presentación» de la
+% orientación del seminario (sección 3):
+%   1. Nombre de la actividad      4. Contribución de cada integrante
+%   2. Nombre del equipo           5. Enlace al repositorio público
+%   3. Nombres completos de los integrantes
+% Todo el texto es real (no imágenes): apto para ATS.
+% ============================================================
+
+\definecolor{portadaazul}{HTML}{1F3A5F}
+\definecolor{portadaazulclaro}{HTML}{3B5F8A}
+\definecolor{portadaacento}{HTML}{E0A526}
+\definecolor{portadagris}{HTML}{5B6573}
+
+\newcommand{\portada}{%
+  \begin{titlepage}
+    \setlength{\parindent}{0pt}%
+    % --- Fondo: banda superior con encabezado y motivo, franja de acento y pie ---
+    \begin{tikzpicture}[remember picture, overlay]
+      \coordinate (bandaSO) at ([yshift=-5.4cm]current page.north west);
+      \fill[portadaazul] (current page.north west) rectangle ([yshift=-5.4cm]current page.north east);
+      % Motivo dentro de la banda: anillos (Onion) y hexágono (Hexagonal)
+      \begin{scope}
+        \clip (current page.north west) rectangle ([yshift=-5.4cm]current page.north east);
+        \foreach \r in {0.8, 1.5, 2.2, 2.9, 3.6}
+          {\draw[portadaazulclaro, line width=1.1pt] ([xshift=-2.6cm, yshift=-2.9cm]current page.north east) circle (\r);}
+        \node[regular polygon, regular polygon sides=6, minimum size=3.0cm,
+              draw=portadaacento, line width=1.6pt]
+              at ([xshift=-6.3cm, yshift=-3.3cm]current page.north east) {};
+      \end{scope}
+      \fill[portadaacento] (bandaSO) rectangle ([yshift=-5.65cm]current page.north east);
+      % Encabezado institucional
+      \node[anchor=south west, align=left, text=white, font=\sffamily]
+           at ([xshift=2.5cm, yshift=0.9cm]bandaSO)
+           {{\Large\bfseries Universidad de La Habana}\\[4pt]
+            {\large Facultad de Matemática y Computación}\\[10pt]
+            {\normalsize Ingeniería de Software\ \ \textbar\ \ 3.\textsuperscript{er} año\ \ \textbar\ \ Curso 2026--2027}};
+      % Pie
+      \fill[portadaazul] (current page.south west) rectangle ([yshift=1.3cm]current page.south east);
+      \node[anchor=west, text=white, font=\sffamily\small]
+           at ([xshift=2.5cm, yshift=0.65cm]current page.south west) {La Habana, \today};
+      \node[anchor=east, text=white, font=\sffamily\small]
+           at ([xshift=-2.5cm, yshift=0.65cm]current page.south east) {SemArq1\_TeamBales};
+    \end{tikzpicture}
+
+    \vspace*{2.7cm}
+
+    % --- 1. Nombre de la actividad ---
+    {\sffamily\small\bfseries\color{portadaacento} ACTIVIDAD\par}
+    \vspace{0.3cm}
+    {\sffamily\fontsize{26}{31}\selectfont\bfseries\color{portadaazul}
+      Seminario de Arquitecturas\\[2pt] de Software:\par}
+    \vspace{0.4cm}
+    {\sffamily\Large\color{portadagris}
+      Un Análisis Comparativo de Estilos\\[2pt] Basados en Capas y Dominio\par}
+    \vspace{0.55cm}
+    {\color{portadaacento}\rule{3.2cm}{2.5pt}\par}
+
+    \vspace{0.9cm}
+
+    % --- 2. Nombre del equipo ---
+    {\sffamily\small\color{portadagris} EQUIPO\par}
+    \vspace{0.12cm}
+    {\sffamily\huge\bfseries\color{portadaazul} Team Bales\par}
+
+    \vspace{0.8cm}
+
+    % --- 3 y 4. Integrantes y contribución individual ---
+    {\sffamily\small\color{portadagris} INTEGRANTES Y PREGUNTAS EN LAS QUE TRABAJÓ\par}
+    \vspace{0.3cm}
+    {\sffamily\normalsize
+      \newcommand{\integrante}[2]{\textbf{##1}\quad{\color{portadaacento}\textbullet}\quad{\color{portadagris}##2}\par\vspace{0.22cm}}%
+      \integrante{Heily Rodríguez Rodríguez}{1 y 2}
+      \integrante{Enrique González Moreira}{4 y 6}
+      \integrante{Ernesto Alejandro Soler Choong}{3 y 5}
+      \integrante{Mauricio Brindon Carbo}{Sin contribución}
+    }
+
+    \vspace{0.8cm}
+
+    % --- 5. Enlace al repositorio público ---
+    {\sffamily\small\color{portadagris} REPOSITORIO PÚBLICO\par}
+    \vspace{0.12cm}
+    {\sffamily\large\href{https://github.com/Team-Bales/seminario-arq-capas}%
+      {\color{portadaazul}https://github.com/Team-Bales/seminario-arq-capas}\par}
+  \end{titlepage}
+}
