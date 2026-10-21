@@ -1,17 +1,39 @@
 % =============================================================================
-% Pregunta 3 — Aplicación de DDD y Bounded Context en un dominio complejo
-% Autor: Ernesto A. Soler Choong (Team Bales) · Issue #5
-%
-% Fragmento para incluir con \input{} en el documento final. Requiere en el
-% preámbulo: babel (spanish, es-nolists), csquotes, biblatex (style=apa), booktabs,
-% tabularx, enumitem, listings (estilo «codigo»), xcolor (azul, naranja, gris)
-% y tikz (positioning, arrows.meta, calc). Ver p3-standalone.tex.
+% preguntas/p3-ddd-bounded-context/solucion.tex — P3 (issue #5)
+% Integrante: Ernesto A. Soler Choong
+% Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
+% Prohibido: \documentclass, \begin{document}, \usepackage, preámbulo.
+% Fuente de trabajo: solucion.md (misma carpeta).
+% Citas: biblatex (APA) con páginas impresas; Richards & Ford (2020), Cockburn
+% (2005) y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
+% Claves de core.bib usadas: martin2017, cockburn2005, delatorre2010,
+% richardsford2020. Clave propia (referencias.bib): palermo2008.
+% Paquetes que debe cargar el preámbulo común: xcolor, tikz, listings,
+% booktabs, tabularx, array, enumitem (con babel spanish + es-nolists).
 % =============================================================================
 
-\section{Aplicación de DDD y \textit{Bounded Context} en un dominio complejo}
+% --- Definiciones locales (no son \usepackage; solo afectan a este capítulo) ---
+\providecolor{azul}{HTML}{1F4E79}
+\providecolor{naranja}{HTML}{C55A11}
+\providecolor{gris}{HTML}{595959}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\lstdefinestyle{codigo}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{azul}\bfseries,
+  commentstyle=\color{gris}\itshape,
+  stringstyle=\color{naranja},
+  frame=lines, framesep=4pt, columns=fullflexible, keepspaces=true,
+  showstringspaces=false, breaklines=true, xleftmargin=1em,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {ñ}{{\~n}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1
+           {Ú}{{\'U}}1 {Ñ}{{\~N}}1
+}
+\renewcommand{\lstlistingname}{Listado}
+
+\chapter{P3: Aplicación de DDD y Bounded Context en un Dominio Complejo}
 \label{sec:p3}
 
-\subsection{Planteamiento}
+\section{Planteamiento}
 \label{sec:p3-planteamiento}
 
 Una empresa de seguros necesita un sistema para gestionar pólizas de automóviles que
@@ -23,23 +45,23 @@ referencia. La pregunta pide explicar:
 
 \begin{enumerate}[label=(\alph*)]
   \item cómo dividir el sistema en contextos delimitados (\textit{bounded contexts});
-  \item cómo evitar que el modelo de \enquote{Póliza} se contamine con detalles de
+  \item cómo evitar que el modelo de «Póliza» se contamine con detalles de
         siniestros o de facturación;
   \item cómo se comunicarían esos contextos de manera desacoplada, y
   \item cómo se relaciona la solución con una arquitectura orientada al dominio (Onion o
-        Clean) y con el \enquote{Adaptador de Servicio} de la Guía de Arquitectura N-Capas.
+        Clean) y con el «Adaptador de Servicio» de la Guía de Arquitectura N-Capas.
 \end{enumerate}
 
-La solución ingenua sería construir un único modelo de \enquote{Póliza} compartido por
+La solución ingenua sería construir un único modelo de «Póliza» compartido por
 todas las áreas. Ese modelo acumularía cláusulas, planes de cobro y datos de peritaje, y
 cualquier cambio pedido por un área afectaría a todas las demás. Domain-Driven Design
 (DDD) propone lo contrario: expresar el modelo en el lenguaje de los expertos del
 negocio, el llamado \emph{Lenguaje Ubicuo}, y está indicado precisamente para
 aplicaciones empresariales complejas \parencite[21]{delatorre2010}. Desde esta
-perspectiva, que \enquote{póliza} signifique tres cosas distintas no es un defecto que
+perspectiva, que «póliza» signifique tres cosas distintas no es un defecto que
 haya que corregir, sino la señal de que existen varios modelos legítimos.
 
-\subsection{División del sistema en contextos delimitados}
+\section{División del sistema en contextos delimitados}
 \label{sec:p3-division}
 
 El contexto delimitado es un concepto propuesto por Evans (como se citó en
@@ -72,11 +94,11 @@ la aseguradora se aplican cuatro criterios:
 \end{enumerate}
 
 Con estos criterios se proponen cuatro contextos delimitados, resumidos en la
-Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de \enquote{Póliza}.
+Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de «Póliza».
 
 \begin{table}[htbp]
   \centering
-  \caption{Contextos delimitados propuestos y significado de \enquote{Póliza} en cada uno.}
+  \caption{Contextos delimitados propuestos y significado de «Póliza» en cada uno.}
   \label{tab:p3-contextos}
   \small
   \renewcommand{\arraystretch}{1.25}
@@ -86,7 +108,7 @@ Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de \enquote{P
                                   >{\raggedright\arraybackslash}X@{}}
     \toprule
     \textbf{Contexto} & \textbf{Responsabilidad} & \textbf{Lenguaje propio}
-      & \textbf{Qué es \enquote{Póliza}} \\
+      & \textbf{Qué es «Póliza»} \\
     \midrule
     Suscripción y Pólizas (actuarios)
       & Diseñar, emitir, modificar, renovar, suspender y cancelar pólizas
@@ -132,13 +154,13 @@ con alta cohesión y comunicadas mediante interfaces \parencite[71--72]{delatorr
 contexto delimitado va un paso más allá. No es un módulo de un modelo compartido: es un
 modelo propio, con sus propios datos.
 
-\subsection{Cómo evitar la contaminación del modelo de Póliza}
+\section{Cómo evitar la contaminación del modelo de Póliza}
 \label{sec:p3-contaminacion}
 
 El aislamiento del modelo se consigue combinando cinco mecanismos.
 
 \begin{enumerate}[label=\textbf{M\arabic*.}, leftmargin=2.2em]
-  \item \textbf{Un modelo de Póliza por contexto.} No existe una clase \enquote{Póliza}
+  \item \textbf{Un modelo de Póliza por contexto.} No existe una clase «Póliza»
         compartida. Cada contexto incluye sus propias clases y esquemas, y nunca se acopla
         a la definición de clases ni a la base de datos de otro contexto
         \parencite[cap.~17]{richardsford2020}. Solo Suscripción conoce cláusulas y
@@ -184,7 +206,7 @@ El aislamiento del modelo se consigue combinando cinco mecanismos.
         consultadas.}
 \end{enumerate}
 
-\subsection{Comunicación desacoplada entre contextos}
+\section{Comunicación desacoplada entre contextos}
 \label{sec:p3-comunicacion}
 
 \textcite[cap.~14]{richardsford2020} distinguen dos modelos de interacción. El modelo
@@ -327,7 +349,7 @@ un formato publicado.
 Nunca transportan objetos del modelo interno: cada consumidor traduce el mensaje a su
 propio modelo (mecanismo M5 de la Sección~\ref{sec:p3-contaminacion}).
 
-\subsection{Relación con una arquitectura orientada al dominio y el Adaptador de Servicio}
+\section{Relación con una arquitectura orientada al dominio y el Adaptador de Servicio}
 \label{sec:p3-arquitectura}
 
 Los contextos delimitados organizan el sistema a gran escala. Internamente, cada contexto
@@ -348,7 +370,7 @@ tercero lo formula la Guía de Arquitectura N-Capas:
         \parencite[159]{delatorre2010}. La Capa de Aplicación debe ser delgada: coordina
         las tareas y las conversiones de formato, pero no contiene lógica de negocio
         \parencite[247]{delatorre2010}. Interpretamos que, en este pasaje, la Guía llama
-        \enquote{lógica de negocio} a la lógica del dominio. En la terminología de Martin, los casos de uso sí
+        «lógica de negocio» a la lógica del dominio. En la terminología de Martin, los casos de uso sí
         contienen reglas de negocio propias de la aplicación, mientras que las reglas
         críticas residen en las entidades \parencite[204]{martin2017}.
 \end{itemize}
@@ -421,11 +443,11 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
 \end{figure}
 
 \paragraph{El Adaptador de Servicio.}
-Lo que el enunciado llama \enquote{Adaptador de Servicio} corresponde en la Guía a los
+Lo que el enunciado llama «Adaptador de Servicio» corresponde en la Guía a los
 \emph{Agentes de Servicios externos}.\footnote{La Guía emplea además
-\enquote{Agente de Servicio} en otro sentido: un componente de la capa de presentación
+«Agente de Servicio» en otro sentido: un componente de la capa de presentación
 que consume servicios distribuidos \parencite[269]{delatorre2010}. En esta respuesta,
-\enquote{Agente de Servicio} designa siempre a un agente de servicios externos.} Según la Guía, estos agentes:
+«Agente de Servicio» designa siempre a un agente de servicios externos.} Según la Guía, estos agentes:
 \begin{itemize}
   \item gestionan la semántica de comunicación con un servicio externo y mapean entre su
         formato de datos y el de la aplicación \parencite[108]{delatorre2010};
@@ -491,7 +513,7 @@ Siniestros, y aporta tres beneficios:
 Los consumidores de eventos cumplen el mismo papel de traducción en sentido de entrada:
 convierten cada mensaje publicado en una llamada a un caso de uso del contexto receptor.
 
-\subsection{Valoración crítica}
+\section{Valoración crítica}
 \label{sec:p3-valoracion}
 
 La solución reúne las ventajas que justifican DDD en un dominio con reglas de negocio
@@ -515,7 +537,7 @@ Tiene, sin embargo, costes que deben asumirse de forma consciente:
         disponible, Siniestros no puede verificar la cobertura al abrir un expediente. Es
         el mismo riesgo por el que se evitó acoplar de forma síncrona a Peritaje
         (criterio C4). Como mitigación, propia de este diseño, Siniestros puede registrar
-        el expediente en estado \enquote{cobertura pendiente de verificar} y completar la
+        el expediente en estado «cobertura pendiente de verificar» y completar la
         verificación cuando Suscripción responda, sin bloquear la atención al asegurado. Para
         ello, el puerto \texttt{IConsultaCobertura} debe contemplar el fallo de la
         llamada; el Listado~\ref{lst:p3-agente} omite ese manejo por brevedad.
@@ -532,3 +554,25 @@ aseguradora: cuatro áreas con lenguajes propios y reglas contractuales, de cobr
 peritaje que evolucionan de forma independiente son justamente el escenario en el que la
 división en contextos delimitados, comunicados por eventos y protegidos por Agentes de
 Servicios externos, aporta más valor que coste.
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Cuatro contextos, con Peritaje separado de Siniestros.} Se justifica por
+        lenguaje, ausencia de transacción compartida y características operativas
+        distintas; la alternativa de integrarlo se discute en la
+        Sección~\ref{sec:p3-division}.
+  \item \textbf{Una única interacción síncrona.} Se reserva para la verificación de
+        cobertura; su coste y su mitigación se analizan en la
+        Sección~\ref{sec:p3-valoracion}.
+  \item \textbf{Evans se cita de forma indirecta.} Su libro no forma parte de la
+        bibliografía orientada; el concepto se toma de \textcite[cap.~7]{richardsford2020}.
+  \item \textbf{Patrones del \textit{Context Map} fuera del alcance.} No aparecen en la
+        bibliografía consultada; el aislamiento entre contextos se fundamenta con los
+        Agentes de Servicios externos y los adaptadores.
+  \item \textbf{«Adaptador de Servicio» = «Agentes de Servicios externos».} El término del
+        enunciado no aparece en la Guía; se usa el nombre que emplea la propia Guía.
+\end{itemize}
+
+\section*{Notas de investigación}
+\input{investigacion/p3-bounded-context/notas}

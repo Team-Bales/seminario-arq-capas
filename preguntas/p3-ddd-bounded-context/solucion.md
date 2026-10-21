@@ -8,22 +8,19 @@
 
 ## Respuesta
 
-La respuesta está redactada en **LaTeX**, para integrarse directamente en el documento final del seminario:
+La respuesta está redactada en **LaTeX**, como fragmento puro del documento final `SemArq1_TeamBales.tex` (igual que P1 y P4):
 
 | Archivo | Contenido |
 |---------|-----------|
-| [`solucion.tex`](solucion.tex) | Texto de la respuesta (sección para incluir con `\input{}` en el documento final) |
-| [`referencias.bib`](referencias.bib) | Referencias en formato BibTeX (APA 7 con `biblatex` + `biber`) |
-| [`p3-standalone.tex`](p3-standalone.tex) | Documento autónomo con el preámbulo, para compilar y revisar P3 por separado |
+| [`solucion.tex`](solucion.tex) | Capítulo `\chapter{P3: …}`, sin preámbulo; se incluye con `\include` desde el documento final. Al final carga las notas de investigación con `\input{investigacion/p3-bounded-context/notas}` |
+| [`referencias.bib`](referencias.bib) | Solo las fuentes que no están en `core.bib` (`palermo2008`) |
 
-Compilación (desde esta carpeta):
+Requisitos para el preámbulo común:
+- **Paquetes:** `xcolor`, `tikz`, `listings`, `booktabs`, `tabularx`, `array` y `enumitem`.
+- **Idioma:** babel en español con `es-nolists`.
+- **Citas:** biblatex (APA).
 
-```
-pdflatex -output-directory=build p3-standalone.tex
-cd build && biber --input-directory=.. p3-standalone && cd ..
-pdflatex -output-directory=build p3-standalone.tex
-pdflatex -output-directory=build p3-standalone.tex
-```
+Los colores, el estilo del listado y las librerías TikZ se definen dentro del propio fragmento.
 
 ---
 
