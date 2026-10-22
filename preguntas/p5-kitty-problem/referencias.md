@@ -1,6 +1,6 @@
 # Referencias — P5: Kitty Problem y Principio Abierto/Cerrado
 
-Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista aparece citada en la respuesta, y viceversa. Las entradas BibTeX están en `core.bib` y, para `palermo2008`, en `preguntas/p3-ddd-bounded-context/referencias.bib`.
+Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista aparece citada en la respuesta, y viceversa. Todas las entradas BibTeX están en `core.bib`.
 
 ## Fuentes primarias
 

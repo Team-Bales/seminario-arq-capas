@@ -4,13 +4,14 @@
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Prohibido: \documentclass, \begin{document}, \usepackage, preámbulo.
 % Fuente de trabajo: solucion.md (misma carpeta).
-% Citas: biblatex (APA) con páginas impresas; Richards & Ford (2020), Cockburn
-% (2005) y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
-% Claves de core.bib usadas: martin2017, richards2015, richardsford2020,
-% delatorre2010, cockburn2005. palermo2008 está declarada en
-% preguntas/p3-ddd-bounded-context/referencias.bib (o en core.bib, si se mueve).
-% Paquetes que debe cargar el preámbulo común: xcolor, tikz, listings y
-% enumitem (con babel spanish + es-nolists).
+% Estructura del issue #9: \chapter con el título oficial + 3 \section (una por
+% apartado del enunciado) + Notas de diseño + Notas de investigación.
+% Citas: biblatex con páginas impresas; Richards & Ford (2020), Cockburn (2005)
+% y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
+% Claves usadas, todas de core.bib: martin2017, richards2015, richardsford2020,
+% delatorre2010, cockburn2005, palermo2008.
+% Paquetes: los del preámbulo del #13 (enumitem, tikz) más listings, pedido
+% para preamble.tex en el issue #13.
 % =============================================================================
 
 % --- Definiciones auxiliares. Son globales (siguen activas en los capítulos
@@ -32,11 +33,10 @@
 }
 \renewcommand{\lstlistingname}{Listado}
 
-\chapter{P5: Análisis de un Problema Real: El \emph{Kitty Problem} y el Principio de Abierto/Cerrado}
+\chapter{P5: Análisis del Kitty Problem y el Principio Abierto/Cerrado}
 \label{sec:p5}
-
-\section{Planteamiento}
-\label{sec:p5-planteamiento}
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em
 
 El enunciado presenta el \emph{Kitty Problem}: un requisito transversal, la entrega de
 gatitos, afecta a varios servicios ya existentes de un sistema de taxis (\texttt{TaxiUI},
@@ -59,8 +59,8 @@ pregunta pide:
         de Abierto/Cerrado (OCP) y qué papel desempeñan los adaptadores.
 \end{enumerate}
 
-\section{El \emph{Kitty Problem}}
-\label{sec:p5-problema}
+\section{¿Por qué dividir por verbos o entidades provocó el \emph{Kitty Problem}?}
+\label{sec:p5-causas}
 
 Martin parte de un agregador de taxis, ya presentado en el capítulo sobre el Principio de
 Sustitución de Liskov, que conoce a muchos proveedores de taxis de una ciudad y permite a
@@ -120,8 +120,6 @@ no pueden desarrollarse, desplegarse ni mantenerse de forma independiente
   \label{fig:p5-problema}
 \end{figure}
 
-\section{Por qué la división por verbos o entidades llevó al problema}
-\label{sec:p5-causas}
 
 \paragraph{La descomposición funcional es vulnerable a los cambios transversales.}
 Cada servicio implementa un paso del flujo: encontrar, seleccionar, despachar. Un
@@ -159,7 +157,7 @@ componentes \parencite[105--106]{martin2017}. Todas las reglas de los gatitos ca
 juntas, pero el diseño las dispersa por cuatro servicios. Martin vincula expresamente
 este principio con el \emph{Kitty Problem} \parencite[106]{martin2017}.
 
-\section{Diseño según DDD y la Arquitectura Onion/Clean}
+\section{Diseño con DDD y Onion/Clean: un solo componente afectado}
 \label{sec:p5-diseno}
 
 La clave es trazar las fronteras sobre un \emph{eje de cambio}: los componentes de cada
@@ -324,7 +322,7 @@ en la capa externa. Conviene precisar que, incluso en la solución de Martin,
 \emph{literalmente} a un único componente. Es lo esperable: el cierre total es
 inalcanzable y, por tanto, debe ser estratégico \parencite[106]{martin2017}.
 
-\section{\texttt{Kittens} y \texttt{Rides} como \emph{plugins}: OCP y adaptadores}
+\section{Solución con \texttt{Kittens} y \texttt{Rides} como \emph{plugins}}
 \label{sec:p5-plugins}
 
 \paragraph{La solución de Martin.}
@@ -343,9 +341,9 @@ repartidas en varios servicios, el despliegue se coordina, y la capa externa se 
 muestra la estructura propuesta.
 
 \paragraph{Por qué respeta el OCP.}
-El OCP, formulado por Meyer en 1988 (como se citó en \cite[70]{martin2017}), establece
-que un artefacto de software debe estar abierto a la extensión y cerrado a la
-modificación. En el plano arquitectónico se consigue separando la funcionalidad según cómo,
+El OCP, formulado originalmente por Meyer en 1988 y citado aquí a través de Martin,
+establece que un artefacto de software debe estar abierto a la extensión y cerrado a la
+modificación \fuente{martin2017}{70}. En el plano arquitectónico se consigue separando la funcionalidad según cómo,
 por qué y cuándo cambia, y organizándola en una jerarquía de componentes en la que los de
 nivel superior quedan protegidos de los cambios en los de nivel inferior
 \parencite[74]{martin2017}. En la propuesta:
@@ -490,7 +488,7 @@ En todos los casos, los adaptadores permiten que la extensión llegue hasta los 
 reales sin romper la Regla de Dependencia: el detalle depende de la abstracción, nunca al
 revés.
 
-\section{Valoración crítica}
+\subsection*{Valoración crítica}
 \label{sec:p5-valoracion}
 
 El patrón de núcleo y \emph{plugins} aporta lo que el \emph{Kitty Problem} pedía:
@@ -572,3 +570,4 @@ capa externa. Eso es lo que persigue el OCP.
 
 \section*{Notas de investigación}
 \input{investigacion/p5-kitty-ocp/notas}
+\endgroup
