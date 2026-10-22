@@ -104,7 +104,7 @@ no pueden desarrollarse, desplegarse ni mantenerse de forma independiente
     \draw[flujo] (fin) -- (sel);
     \draw[flujo] (sel) -- (dis);
     \node[draw=naranja, fill=naranja!10, rounded corners=3pt, thick, font=\small,
-          minimum width=13.6cm, minimum height=0.9cm, align=center] (req) at (5.85,2.1)
+          minimum width=14.7cm, minimum height=0.9cm, align=center] (req) at (5.85,2.1)
       {\textbf{Requisito transversal: entrega de gatitos}\\[1pt]
        \footnotesize puntos de recogida · proveedores participantes · conductores y clientes alérgicos};
     \foreach \n in {ui,fin,sel,dis} {
@@ -243,36 +243,6 @@ lo actualiza su parte de despacho y lo consulta su regla de selección. Si esas 
 despliegan en servicios distintos, el historial debe residir en un almacén propio de
 \texttt{Kittens} al que ambas accedan.
 
-Con este diseño, incorporar la entrega de gatitos consiste en añadir el componente
-\texttt{Kittens} y ajustar la interfaz de usuario y su configuración. El núcleo y
-\texttt{Rides} no se modifican. Hay que reconocer que, si \texttt{Kittens} se reparte en
-varios servicios, la incorporación de sus archivos \emph{jar} en ellos debe coordinarse.
-La diferencia con el diseño original es que el cambio es aditivo: no se modifica ni se
-recompila ningún componente del núcleo ni de \texttt{Rides}, y la funcionalidad queda
-confinada en un único componente lógico (aunque no en un único servicio), más un ajuste
-en la capa externa. Conviene precisar que, incluso en la solución de Martin,
-\texttt{TaxiUI} cambia \parencite[244]{martin2017}: el cambio no afecta
-\emph{literalmente} a un único componente. Es lo esperable: el cierre total es
-inalcanzable y, por tanto, debe ser estratégico \parencite[106]{martin2017}.
-
-\section{\texttt{Kittens} y \texttt{Rides} como \emph{plugins}: OCP y adaptadores}
-\label{sec:p5-plugins}
-
-\paragraph{La solución de Martin.}
-Al aplicar SOLID, Martin conserva gran parte de la lógica de los servicios originales en
-clases base abstractas. Lo específico de los viajes se extrae a un componente
-\texttt{Rides}, y la nueva capacidad se sitúa en un componente \texttt{Kittens}. Ambos
-extienden las clases abstractas mediante \emph{Template Method} o \emph{Strategy},
-siguen la Regla de Dependencia y son creados por factorías bajo el control de la interfaz
-de usuario. Al implementar la entrega de gatitos, cambia \texttt{TaxiUI}, pero nada más:
-se añade un nuevo \emph{jar}, \emph{Gem} o DLL que se carga dinámicamente en tiempo de
-ejecución, de modo que la extensión queda desacoplada y puede desarrollarse y desplegarse
-de forma independiente \parencite[244]{martin2017}. En la propuesta, esa independencia lo
-es respecto del núcleo y de \texttt{Rides}; entre las piezas de \texttt{Kittens}
-repartidas en varios servicios, el despliegue se coordina, y la capa externa se ajusta
-(Sección~\ref{sec:p5-diseno}). La Figura~\ref{fig:p5-solucion}
-muestra la estructura propuesta.
-
 \begin{figure}[!t]
   \centering
   \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
@@ -322,8 +292,8 @@ muestra la estructura propuesta.
     \draw[usa]  (a1) -- (x1);
     \draw[usa]  (a2) -- (x2);
     \draw[usa]  (main.south) -- (core.north);
-    \draw[crea] ([xshift=-3mm]main.south -| rides.west) |- (rides.west);
-    \draw[crea] ([xshift=3mm]main.south -| kit.east) |- (kit.east);
+    \draw[crea] ([xshift=-5mm]main.south -| rides.west) |- (rides.west);
+    \draw[crea] ([xshift=5mm]main.south -| kit.east) |- (kit.east);
     % Leyenda
     \draw[impl] (-6.9,-6.2) -- ++(0.8,0) node[right, font=\scriptsize, black]
       {implementa/extiende (apunta hacia lo estable)};
@@ -341,6 +311,36 @@ muestra la estructura propuesta.
            \textcite[21--23]{richards2015}.}
   \label{fig:p5-solucion}
 \end{figure}
+
+Con este diseño, incorporar la entrega de gatitos consiste en añadir el componente
+\texttt{Kittens} y ajustar la interfaz de usuario y su configuración. El núcleo y
+\texttt{Rides} no se modifican. Hay que reconocer que, si \texttt{Kittens} se reparte en
+varios servicios, la incorporación de sus archivos \emph{jar} en ellos debe coordinarse.
+La diferencia con el diseño original es que el cambio es aditivo: no se modifica ni se
+recompila ningún componente del núcleo ni de \texttt{Rides}, y la funcionalidad queda
+confinada en un único componente lógico (aunque no en un único servicio), más un ajuste
+en la capa externa. Conviene precisar que, incluso en la solución de Martin,
+\texttt{TaxiUI} cambia \parencite[244]{martin2017}: el cambio no afecta
+\emph{literalmente} a un único componente. Es lo esperable: el cierre total es
+inalcanzable y, por tanto, debe ser estratégico \parencite[106]{martin2017}.
+
+\section{\texttt{Kittens} y \texttt{Rides} como \emph{plugins}: OCP y adaptadores}
+\label{sec:p5-plugins}
+
+\paragraph{La solución de Martin.}
+Al aplicar SOLID, Martin conserva gran parte de la lógica de los servicios originales en
+clases base abstractas. Lo específico de los viajes se extrae a un componente
+\texttt{Rides}, y la nueva capacidad se sitúa en un componente \texttt{Kittens}. Ambos
+extienden las clases abstractas mediante \emph{Template Method} o \emph{Strategy},
+siguen la Regla de Dependencia y son creados por factorías bajo el control de la interfaz
+de usuario. Al implementar la entrega de gatitos, cambia \texttt{TaxiUI}, pero nada más:
+se añade un nuevo \emph{jar}, \emph{Gem} o DLL que se carga dinámicamente en tiempo de
+ejecución, de modo que la extensión queda desacoplada y puede desarrollarse y desplegarse
+de forma independiente \parencite[244]{martin2017}. En la propuesta, esa independencia lo
+es respecto del núcleo y de \texttt{Rides}; entre las piezas de \texttt{Kittens}
+repartidas en varios servicios, el despliegue se coordina, y la capa externa se ajusta
+(Sección~\ref{sec:p5-diseno}). La Figura~\ref{fig:p5-solucion}
+muestra la estructura propuesta.
 
 \paragraph{Por qué respeta el OCP.}
 El OCP, formulado por Meyer en 1988 (como se citó en \cite[70]{martin2017}), establece

@@ -11,7 +11,7 @@ Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista apa
 | Martin (2017) | Cap. 13, pp. 105-106 | CCP; cierre estratégico (tipos de cambio esperados o vividos); vínculo explícito con el Kitty Problem |
 | Martin (2017) | Cap. 17, p. 173 | Las fronteras se trazan sobre los ejes de cambio |
 | Martin (2017) | Cap. 22, pp. 203, 205 | Regla de Dependencia; capa de adaptadores de interfaz |
-| Martin (2017) | Cap. 26, pp. 232, 237 | Componente `Main` como *plugin* de configuración; un `Main` por configuración |
+| Martin (2017) | Cap. 26, pp. 232, 237 | Inyección de dependencias en `Main`, el componente más «sucio» (p. 232); `Main` como *plugin* de configuración y un `Main` por configuración (p. 237) |
 | Martin (2017) | Cap. 27, pp. 240-247 | Falacias de los servicios; Kitty Problem; solución con `Rides` y `Kittens`; despliegue en la ruta de carga; las fronteras atraviesan los servicios |
 | Richards (2015) — *Software Architecture Patterns* | Cap. 3, pp. 21-26 | Patrón microkernel o de plugins (pp. 21-22), independencia de los plugins (p. 22), adaptador de contrato (p. 23), diseño evolutivo (pp. 24-25), análisis de características (pp. 25-26) |
 | Richards & Ford (2020) — *Fundamentals of Software Architecture* | Cap. 7 (recuadro sobre el bounded context de DDD) | Contextos delimitados: visibles dentro, opacos fuera |
