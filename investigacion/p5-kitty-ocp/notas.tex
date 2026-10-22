@@ -2,26 +2,33 @@
 % investigacion/p5-kitty-ocp/notas.tex — INV-P5 (issue #10)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye desde preguntas/p5-kitty-problem/solucion.tex
-% mediante \input{investigacion/p5-kitty-ocp/notas}, justo después de
-% \section*{Notas de investigación}; por eso aquí se usan \subsection*.
+% mediante \input{investigacion/p5-kitty-ocp/notas}.
+% Estructura del issue #10: \section*{Notas de investigación: …} + Síntesis +
+% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
+% Título: se omite «en Richards & Ford» del título oficial porque el Kitty
+% Problem está en Martin (2017, cap. 27); propuesto en el issue #13.
 % Fuente de trabajo: notas.md (misma carpeta).
 % Citas: páginas impresas; Richards & Ford (2020) no tiene paginación y se
 % cita por capítulo/sección. Todas las claves están en core.bib.
 % ============================================================
 
-\subsection*{Síntesis}
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em
+\section*{Notas de investigación: Kitty Problem, OCP y Plugin Architecture}
+
+\section{Síntesis}
 
 El \emph{Kitty Problem} es un ejemplo de \textcite[242--243]{martin2017}, no de Richards y
-Ford. Parte de un agregador de taxis, presentado antes en el capítulo sobre LSP
-\parencite[80]{martin2017}, construido como microservicios divididos por función:
-\texttt{TaxiUI}, \texttt{TaxiFinder}, \texttt{TaxiSelector} y \texttt{TaxiDispatcher}
-\parencite[242]{martin2017}. Cuando se pide un servicio de entrega de gatitos, con
-restricciones por alergias de conductores y clientes, hay que modificar \emph{todos} los
-servicios y coordinar su despliegue \parencite[243]{martin2017}. Martin usa el caso para
-desmontar dos supuestos beneficios de los servicios: el desacoplamiento y el desarrollo y
-despliegue independientes \parencite[240--241]{martin2017}. Su diagnóstico es que las
-descomposiciones funcionales son muy vulnerables a las preocupaciones transversales
-\parencite[243]{martin2017}.
+Ford. Parte de un agregador de taxis, presentado antes en el capítulo sobre el Principio
+de Sustitución de Liskov \parencite[80]{martin2017}, construido como microservicios
+divididos por función: \texttt{TaxiUI}, \texttt{TaxiFinder}, \texttt{TaxiSelector} y
+\texttt{TaxiDispatcher} \parencite[242]{martin2017}. Cuando se pide un servicio de entrega
+de gatitos, con restricciones por alergias de conductores y clientes, hay que modificar
+\emph{todos} los servicios y coordinar su despliegue \parencite[243]{martin2017}. Martin
+usa el caso para desmontar dos supuestos beneficios de los servicios: el desacoplamiento
+y el desarrollo y despliegue independientes \parencite[240--241]{martin2017}. Su
+diagnóstico es que las descomposiciones funcionales son muy vulnerables a los aspectos
+transversales \parencite[243]{martin2017}.
 
 La salida que propone no es crear más servicios, sino aplicar SOLID dentro de ellos
 \parencite[244]{martin2017}. La lógica genérica queda en clases base abstractas; lo
@@ -31,67 +38,102 @@ va a un componente \texttt{Kittens}. Ambos extienden esas abstracciones mediante
 por factorías controladas por la interfaz de usuario. Solo cambia \texttt{TaxiUI}; el
 resto se extiende añadiendo un componente que se carga en tiempo de ejecución
 \parencite[244]{martin2017}, lo que es el Principio Abierto/Cerrado aplicado a
-componentes \parencite[246]{martin2017}. La lección
-arquitectónica: las fronteras no pasan \emph{entre} los servicios, sino \emph{a través} de
-ellos \parencite[246--247]{martin2017}.
+componentes \parencite[246]{martin2017}. La lección arquitectónica: las fronteras no
+pasan \emph{entre} los servicios, sino \emph{a través} de ellos
+\parencite[246--247]{martin2017}.
 
 Completan el cuadro tres ideas. El CCP es el SRP llevado a componentes, y Martin lo
-vincula expresamente con el Kitty Problem \parencite[105--106]{martin2017}. La
-arquitectura de plugins aísla las reglas de negocio de los componentes opcionales o
-intercambiables \parencite[170--173]{martin2017}. Y \textcite[caps.~8 y
-17]{richardsford2020} aportan la partición por dominio, el antipatrón \emph{entity trap}
-y el bounded context como criterio de granularidad.
+vincula expresamente con el \emph{Kitty Problem} \parencite[105--106]{martin2017}. La
+arquitectura de \emph{plugins} aísla las reglas de negocio de los componentes opcionales
+o intercambiables \parencite[170--173]{martin2017}. Y
+\textcite[caps.~8 y 17]{richardsford2020} aportan la partición por dominio, el antipatrón
+\emph{entity trap} y el bounded context como criterio de granularidad.
 
-\subsection*{Conceptos clave}
+\section{Conceptos clave}
 
-\begin{description}
-  \item[Kitty Problem.] Un requisito transversal obliga a cambiar y desplegar de forma
-    coordinada todos los servicios de un sistema descompuesto por función
-    \parencite[242--243]{martin2017}.
-  \item[Falacias de los servicios.] Siguen acoplados por los datos que comparten, y en esa
-    medida su desarrollo y despliegue deben coordinarse \parencite[240--241]{martin2017}.
-  \item[OCP.] Un artefacto debe estar abierto a la extensión y cerrado a la modificación;
-    lo formuló Meyer en 1988, como se citó en \textcite[70]{martin2017}. A nivel
-    arquitectónico se logra con SRP y DIP: si A debe protegerse de los cambios en B, B
-    debe depender de A \parencite[71, 73--74]{martin2017}.
-  \item[CCP y cierre estratégico.] Reunir lo que cambia por las mismas razones y al mismo
-    tiempo; como el cierre total es inalcanzable, se cierra frente a los cambios más
-    habituales \parencite[105--106]{martin2017}.
-  \item[Arquitectura de plugins.] Las reglas de negocio no dependen de los componentes
-    opcionales; los plugins actúan como cortafuegos y las fronteras se trazan donde hay
-    un eje de cambio \parencite[170--173]{martin2017}.
-  \item[Regla de Dependencia y adaptadores.] Las dependencias apuntan hacia adentro
-    \parencite[203]{martin2017}; la capa de adaptadores de interfaz convierte datos entre
-    el núcleo y los agentes externos \parencite[205]{martin2017}.
-  \item[Servicios basados en componentes.] Cada servicio puede tener una estructura
-    interna SOLID en la que las nuevas funcionalidades entran como componentes nuevos
-    \parencite[245--247]{martin2017}.
-  \item[Patrón microkernel.] Núcleo mínimo más módulos plug-in independientes, localizados
-    mediante un registro \parencite[21--22]{richards2015}; si un plugin trae un contrato
-    propio, se crea un adaptador hacia el contrato estándar del núcleo
-    \parencite[23]{richards2015}.
-  \item[Partición por dominio y \emph{entity trap}.] Con partición técnica, un flujo queda
-    repartido por todas las capas; crear un componente por entidad confunde datos con
-    flujos de trabajo \parencite[cap.~8]{richardsford2020}.
-  \item[Bounded context y granularidad.] Cada servicio modela un dominio o flujo; las
-    fronteras se fijan por propósito, transacciones y coreografía
-    \parencite[cap.~17]{richardsford2020}; cada servicio así delimitado forma un cuanto
-    desplegable de forma independiente \parencite[cap.~7]{richardsford2020}.
-\end{description}
+\begin{table}[htbp]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.21\linewidth}p{0.47\linewidth}p{0.24\linewidth}@{}}
+    \toprule
+    \textbf{Concepto} & \textbf{Definición} & \textbf{Fuente} \\
+    \midrule
+    \raggedright \emph{Kitty Problem}
+      & \raggedright Un requisito transversal obliga a cambiar y desplegar de forma
+        coordinada todos los servicios de un sistema descompuesto por función
+      & \raggedright \textcite[242--243]{martin2017} \tabularnewline
+    \raggedright Falacias de los servicios
+      & \raggedright Siguen acoplados por los datos que comparten; en esa medida, su
+        desarrollo y despliegue deben coordinarse
+      & \raggedright \textcite[240--241]{martin2017} \tabularnewline
+    \raggedright OCP
+      & \raggedright Abierto a la extensión y cerrado a la modificación (Meyer, citado por
+        Martin); en arquitectura, con SRP y DIP
+      & \raggedright \textcite[70, 73--74]{martin2017} \tabularnewline
+    \raggedright CCP y cierre estratégico
+      & \raggedright Reunir lo que cambia por las mismas razones; cerrar frente a los
+        cambios más habituales
+      & \raggedright \textcite[105--106]{martin2017} \tabularnewline
+    \raggedright Arquitectura de \emph{plugins}
+      & \raggedright Las reglas de negocio no dependen de los componentes opcionales; las
+        fronteras siguen los ejes de cambio
+      & \raggedright \textcite[170--173]{martin2017} \tabularnewline
+    \raggedright Regla de Dependencia y adaptadores
+      & \raggedright Las dependencias apuntan hacia adentro; los adaptadores convierten
+        datos entre el núcleo y lo externo
+      & \raggedright \textcite[203, 205]{martin2017} \tabularnewline
+    \raggedright Servicios basados en componentes
+      & \raggedright Estructura interna SOLID; lo nuevo entra como componentes nuevos y las
+        fronteras atraviesan los servicios
+      & \raggedright \textcite[245--247]{martin2017} \tabularnewline
+    \raggedright Patrón microkernel
+      & \raggedright Núcleo mínimo más \emph{plugins} independientes, localizados mediante
+        un registro; adaptador para contratos propios
+      & \raggedright \textcite[21--23]{richards2015} \tabularnewline
+    \raggedright Partición por dominio y \emph{entity trap}
+      & \raggedright Con partición técnica, un flujo se reparte entre capas; un componente
+        por entidad confunde datos con flujos
+      & \raggedright \textcite[cap.~8]{richardsford2020} \tabularnewline
+    \raggedright Bounded context y granularidad
+      & \raggedright Cada servicio modela un dominio o flujo; fronteras por propósito,
+        transacciones y coreografía
+      & \raggedright \textcite[caps.~7 y 17]{richardsford2020} \tabularnewline
+    \bottomrule
+  \end{tabular}
+  \caption{Conceptos clave de la investigación INV-P5.}
+  \label{tab:inv-p5-conceptos}
+\end{table}
 
-\subsection*{Observaciones para la respuesta de P5}
+\section{Puntos de conexión con las preguntas}
 
 \begin{itemize}
-  \item \textbf{Atribución.} El enunciado atribuye el Kitty Problem a Richards y Ford,
-        pero está en \textcite[cap.~27]{martin2017}; la palabra \emph{kitty} no aparece en
-        \textcite{richardsford2020}. Conviene describir el problema tal como se pide y
-        aclarar el origen en una nota al pie.
+  \item \textbf{P5, por qué falló dividir por verbos o entidades:} la vulnerabilidad de la
+        descomposición funcional, las falacias de los servicios, la partición técnica y el
+        \emph{entity trap}, y la violación del CCP.
+  \item \textbf{P5, diseño con DDD y Onion/Clean:} fronteras sobre los ejes de cambio,
+        núcleo protegido por la Regla de Dependencia y bounded context como criterio de
+        granularidad.
+  \item \textbf{P5, \texttt{Kittens} y \texttt{Rides} como \emph{plugins}:} la solución
+        de Martin, el OCP aplicado a componentes, el patrón microkernel y los adaptadores.
+  \item \textbf{P3 y P4:} el bounded context y la granularidad apoyan la división en
+        contextos de P3; las clases base abstractas y las factorías ilustran el DIP de P4.
+\end{itemize}
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Atribución.} El enunciado atribuye el \emph{Kitty Problem} a Richards y
+        Ford, pero está en \textcite[cap.~27]{martin2017}; la palabra \emph{kitty} no
+        aparece en \textcite{richardsford2020}. Conviene describir el problema tal como se
+        pide y aclarar el origen en una nota al pie.
   \item \textbf{«Un solo componente».} En la solución de Martin, \texttt{TaxiUI} también
         cambia \parencite[244]{martin2017}. Lo preciso es decir que el cambio queda
-        confinado a añadir \texttt{Kittens} más un ajuste en la UI, coherente con el
-        cierre estratégico \parencite[106]{martin2017}.
-  \item \textbf{Adaptadores.} El capítulo 27 no habla de adaptadores. Su papel se
+        confinado a añadir \texttt{Kittens} más un ajuste en la interfaz de usuario,
+        coherente con el cierre estratégico \parencite[106]{martin2017}.
+  \item \textbf{Adaptadores.} El capítulo~27 no habla de adaptadores. Su papel se
         argumenta con la capa de adaptadores de interfaz \parencite[205]{martin2017} y el
         adaptador de contrato del microkernel \parencite[23]{richards2015}; esta conexión
         es interpretación propia.
 \end{itemize}
+\endgroup
