@@ -1,0 +1,94 @@
+% ============================================================
+% investigacion/p2-hexagonal-onion/notas.tex — INV-P2 (issue #4)
+% Integrante: Heily Rodríguez Rodríguez
+% Fragmento puro: se incluye desde preguntas/p2-simetria-hexagono/solucion.tex
+% mediante \input{investigacion/p2-hexagonal-onion/notas}.
+% Fuente de trabajo: notas.md (misma carpeta).
+% Citas: los artículos web no tienen paginación. Cockburn se cita por
+% sección con \citep[«Sección»]{cockburn2005}; la serie de Palermo, por
+% entrega: palermo2008 (parte 1, core.bib), palermo2008b y palermo2008c
+% (partes 2 y 3, fuentes.bib de esta carpeta).
+% ============================================================
+
+\section*{Notas de investigación: Arquitectura Hexagonal de Cockburn y Onion de Palermo}
+
+\section{Síntesis}
+
+La Arquitectura Hexagonal nace de una observación de Cockburn: los problemas del lado del usuario (lógica de negocio infiltrada en la interfaz) y los del lado de la base de datos (lógica atada a un servidor externo) parecen distintos, pero tienen la misma causa, el \emph{enredo} entre la lógica de negocio y la interacción con entidades externas \citep[«Motivation»; «Nature of the Solution»]{cockburn2005}. Su respuesta es cambiar la asimetría que organiza el diseño: no arriba/abajo ni izquierda/derecha, sino \textbf{dentro/fuera}. La aplicación se comunica con el exterior a través de \textbf{puertos}, conversaciones con un propósito expresadas como una API, y cada tecnología se conecta mediante un \textbf{adaptador} que traduce esa API a sus señales \citep[«Nature of the Solution»]{cockburn2005}. El hexágono es solo una forma con lados suficientes para dibujar los puertos que hagan falta, sin la jerarquía que sugiere una pila de capas. Más adelante Cockburn distingue entre puertos \textbf{primarios}, los de los actores que conducen la aplicación, y \textbf{secundarios}, los de los actores a los que la aplicación conduce \citep[«The Left-Right Asymmetry»]{cockburn2005}.
+
+La Arquitectura Onion de Palermo comparte esa premisa: externalizar la infraestructura y escribir código adaptador para no acoplarse a ella \citep{palermo2008}. Su regla fundamental es que todo el código puede depender de capas más centrales, pero nunca de capas más externas: todo el acoplamiento apunta hacia el centro. En el centro está el modelo de dominio y, a su alrededor, capas con más comportamiento; en el borde, la interfaz de usuario, la infraestructura y las pruebas. La base de datos deja de ser el centro y pasa a ser algo externo \citep{palermo2008}. Palermo resume Onion en cuatro principios: la aplicación se construye alrededor de un modelo de objetos independiente; las capas internas definen interfaces y las externas las implementan; el acoplamiento va hacia el centro; y el núcleo puede compilarse y ejecutarse sin la infraestructura \citep{palermo2008c}.
+
+Las dos propuestas llegan a la misma estructura con énfasis distintos. Hexagonal trata la aplicación como una caja con fronteras y se centra en el diseño de esas fronteras. Onion, en cambio, organiza también el interior del núcleo en anillos. En ambas, la interfaz que necesita el núcleo vive dentro y la implementación tecnológica vive fuera, y un mecanismo de inyección conecta ambas en tiempo de ejecución \parencites[«Sample Code»]{cockburn2005}{palermo2008b}.
+
+\section{Conceptos clave}
+
+Los conceptos se agrupan en dos tablas: la Arquitectura Hexagonal (Tabla~\ref{tab:inv-p2-hexagonal}) y la Arquitectura Onion (Tabla~\ref{tab:inv-p2-onion}). Las definiciones son síntesis propias.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Conceptos clave de INV-P2: Arquitectura Hexagonal}
+  \label{tab:inv-p2-hexagonal}
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.51\linewidth}p{0.22\linewidth}@{}}
+    \toprule
+    Concepto & Definición & Fuente \\
+    \midrule
+    \raggedright Enredo negocio/exterior & Causa común de los problemas del lado del usuario y del de la base de datos: el negocio mezclado con la interacción con el exterior. & \raggedright \citep[«Motivation»; «Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Asimetría dentro/fuera & La asimetría que importa es interior/exterior, no izquierda/derecha. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Puerto & Conversación con un propósito entre la aplicación y el exterior, cuyo protocolo toma la forma de una API. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Adaptador & Traduce la API del puerto a una tecnología concreta. Un puerto admite varios: GUI, pruebas, SQL o una base de datos simulada. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright El hexágono como metáfora & La forma no importa por el número seis: deja espacio a los puertos necesarios y se aleja del dibujo unidimensional en capas. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Defectos del dibujo en capas & No se respetan sus líneas y más de dos puertos no caben en una dimensión. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Actores primarios y secundarios & El primario conduce la aplicación (\emph{driving}); el secundario es conducido por ella (\emph{driven}). Decide quién inicia la conversación. & \raggedright \citep[«The Left-Right Asymmetry»]{cockburn2005} \tabularnewline
+    \raggedright Puertos primarios y secundarios & Primarios a la izquierda (o arriba), secundarios a la derecha (o abajo), como consecuencia del patrón. & \raggedright \citep[«The Left-Right Asymmetry»]{cockburn2005} \tabularnewline
+    \raggedright Adaptadores de prueba & FIT sustituye a un actor primario, porque conduce la aplicación; un \emph{mock}, a uno secundario, porque responde consultas. & \raggedright \citep[«The Left-Right Asymmetry»]{cockburn2005} \tabularnewline
+    \raggedright Número de puertos & «En gran medida una cuestión de gusto». Cockburn prefiere entre dos y cuatro. & \raggedright \citep[«How Many Ports?»]{cockburn2005} \tabularnewline
+    \raggedright Patrones relacionados & Uso particular de \emph{Adapter}; MVC la aplica solo a los puertos primarios; el DIP da adaptadores secundarios intercambiables. & \raggedright \citep[«Related Patterns»]{cockburn2005} \tabularnewline
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Conceptos clave de INV-P2: Arquitectura Onion}
+  \label{tab:inv-p2-onion}
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.51\linewidth}p{0.22\linewidth}@{}}
+    \toprule
+    Concepto & Definición & Fuente \\
+    \midrule
+    \raggedright Regla de Onion & El código puede depender de capas más centrales, nunca de capas más externas: el acoplamiento apunta hacia el centro. & \raggedright \citep{palermo2008} \tabularnewline
+    \raggedright Anillos de Onion & En el diagrama de la parte 1: \emph{Domain Model}, \emph{Domain Services} y \emph{Application Services} forman el núcleo; el anillo exterior reúne \emph{User Interface}, \emph{Infrastructure} y \emph{Tests}. El número de capas del núcleo varía. & \raggedright \citep[texto y diagrama]{palermo2008} \tabularnewline
+    \raggedright Interfaces de repositorio & Están en el primer anillo alrededor del modelo de dominio (\emph{Domain Services}). En el núcleo solo está la interfaz; la implementación vive en el borde. & \raggedright \citep[texto y diagrama]{palermo2008} \tabularnewline
+    \raggedright Base de datos externa & La base de datos no es el centro: se accede a ella mediante infraestructura que implementa una interfaz con sentido para el núcleo. & \raggedright \citep{palermo2008} \tabularnewline
+    \raggedright DIP e IoC & Onion se apoya fuertemente en el DIP. Un contenedor IoC construye las implementaciones en tiempo de ejecución. & \raggedright \parencites{palermo2008}{palermo2008b} \tabularnewline
+    \raggedright Infraestructura & Código \emph{commodity}, sin ventaja competitiva y que cambia con frecuencia: acceso a datos, servicios web, E/S. & \raggedright \citep{palermo2008c} \tabularnewline
+    \raggedright Llamadas entre capas & Cualquier capa externa puede llamar a cualquier interna; en la N-Capas tradicional, solo a la inmediatamente inferior. & \raggedright \citep{palermo2008c} \tabularnewline
+    \raggedright Principios de Onion & Modelo de objetos independiente; las capas internas definen interfaces y las externas las implementan; acoplamiento hacia el centro; núcleo ejecutable sin infraestructura. & \raggedright \citep{palermo2008c} \tabularnewline
+    \raggedright Ámbito & No es para sitios web pequeños, sino para aplicaciones de negocio de larga vida o comportamiento complejo. & \raggedright \citep{palermo2008} \tabularnewline
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Puntos de conexión con las preguntas}
+
+\begin{sloppypar}
+\begin{itemize}
+  \item \textbf{P2, simetría del hexágono.} Origen y defectos del dibujo en capas, y la simetría dentro/fuera como respuesta \citep[«Nature of the Solution»]{cockburn2005}. Matiz: Onion también es simétrica hacia fuera y su jerarquía está dentro del núcleo \citep{palermo2008}; la forma del dibujo no es lo esencial \citep{palermo2008c}.
+  \item \textbf{P2, Puerto y Adaptador en Onion.} Las capas internas definen interfaces y las externas las implementan \citep{palermo2008c}. Las interfaces de repositorio son el puerto secundario y sus implementaciones, el adaptador secundario \citep{palermo2008}. Ejemplo completo con \texttt{SpeakerController}, \texttt{IConferenceRepository} y el contenedor IoC \citep{palermo2008b}, paralelo al \texttt{Discounter} de \citet[«Sample Code»]{cockburn2005}.
+  \item \textbf{P2, los seis lados.} La forma deja espacio a los puertos \citep[«Nature of the Solution»]{cockburn2005} y su número es cuestión de gusto \citep[«How Many Ports?»]{cockburn2005}. La asimetría izquierda-derecha se elimina «por un momento» y vuelve como distinción primario/secundario \citep[«The Left-Right Asymmetry»]{cockburn2005}.
+  \item \textbf{P1 y P6.} La regla de Onion y la base de datos como elemento externo son el mismo remedio que la Regla de Dependencia \citep{palermo2008}. En Onion cualquier capa externa puede llamar a cualquier interna, a diferencia de las capas cerradas de la N-Capas \citep{palermo2008c}.
+\end{itemize}
+\end{sloppypar}
+
+\section*{Notas de diseño}
+
+\paragraph{Las «4 capas» de Onion son un ejemplo, no una regla.} Los anillos \emph{Domain Model}, \emph{Domain Services} y \emph{Application Services} aparecen en el diagrama de la parte 1, pero el texto aclara que el número de capas del núcleo varía \citep{palermo2008}. Palermo cambia además los nombres en las entregas siguientes: \emph{Object Model} y \emph{Object Services} en la parte 2, y \emph{Business Logic} en el diagrama aplanado de la parte 3 \parencites[diagrama]{palermo2008b}[diagrama]{palermo2008c}. Lo invariante son los cuatro principios, no los nombres de los anillos.
+
+\paragraph{La diferencia entre simetría y jerarquía es de énfasis.} En Hexagonal todo lo externo se trata «igual» \citep[«Nature of the Solution»]{cockburn2005}, pero Onion también reúne en el anillo exterior la interfaz de usuario, la infraestructura y las pruebas \citep{palermo2008}: hacia fuera, también es simétrica, y su jerarquía está \emph{dentro} del núcleo. A su vez, la simetría de Hexagonal es una ficción deliberada, porque Cockburn reintroduce después la distinción entre puertos primarios y secundarios \citep[«The Left-Right Asymmetry»]{cockburn2005}. Hexagonal orienta el diseño de la frontera y Onion, la organización interna.
+
+\paragraph{Onion no hace explícitos los puertos primarios.} En CodeCampServer, el controlador depende directamente de las interfaces del núcleo inyectadas por el contenedor IoC \citep{palermo2008b}, y cualquier capa externa puede llamar a cualquier interna \citep{palermo2008c}. El énfasis de Onion está en el lado secundario, al contrario que MVC, que según Cockburn aplica la idea solo a los puertos primarios \citep[«Related Patterns»]{cockburn2005}.
+
+\paragraph{La forma del dibujo no es lo esencial.} Palermo aplana Onion como una pila y fuerza la N-Capas tradicional a una cebolla: la forma puede ser cualquiera, lo que cambia es la estructura. La N-Capas dibujada como cebolla deja la infraestructura en el centro \citep[texto y diagrama]{palermo2008c}.
+
+\paragraph{Fuentes.} Se usaron solo las dos fuentes del issue, Cockburn y la serie de Palermo. Las partes 2 y 3 de Palermo se declaran en \texttt{fuentes.bib} porque \texttt{core.bib} solo incluye la parte 1. No se citan los comentarios de lectores del final de la parte 3, porque no son de Palermo.
