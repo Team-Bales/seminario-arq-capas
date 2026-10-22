@@ -17,9 +17,9 @@ Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista apa
 | Richards & Ford (2020) — *Fundamentals of Software Architecture* | Cap. 7 (recuadro sobre el bounded context de DDD) | Contextos delimitados: visibles dentro, opacos fuera |
 | Richards & Ford (2020) | Cap. 8 ("Architecture Partitioning", "Entity trap") | Partición técnica vs. por dominio; *entity trap* |
 | Richards & Ford (2020) | Cap. 17 ("Granularity") | Cohesión funcional; riesgo de servicios demasiado pequeños |
-| De la Torre et al. (2010) — *Guía de Arquitectura N-Capas orientada al Dominio* (Borrador) | p. 21; pp. 71-72; pp. 58, 108 | Lenguaje Ubicuo; módulos verticales por área de negocio; Agentes de Servicios externos |
+| De la Torre et al. (2010) — *Guía de Arquitectura N-Capas orientada al Dominio* (Borrador) | p. 21; pp. 71-72; pp. 58, 108 | Lenguaje Ubicuo; módulos verticales por área de negocio (organización análoga); agentes de servicios externos |
 | Cockburn (2005) — *Hexagonal Architecture* | "Intent" | Papel del adaptador |
-| Palermo (2008) — *The Onion Architecture: Part 1* | Artículo completo | Interfaces en el núcleo e implementaciones en los bordes |
+| Palermo (2008) — *The Onion Architecture: Part 1* | Artículo completo | Anillos con el acoplamiento hacia el centro; interfaces en el núcleo e implementaciones en los bordes |
 
 ## Fuentes citadas indirectamente
 
