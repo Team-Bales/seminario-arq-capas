@@ -193,10 +193,11 @@ siguiente:
         \parencite[237]{martin2017}.
 \end{itemize}
 \endgroup
-El criterio que ordena los anillos es la estabilidad: lo más estable queda en el centro,
-protegido de lo que cambia \parencite[73--74]{martin2017}. Por eso, a diferencia del
-esquema de Palermo, que sitúa todo el modelo de dominio en el centro, aquí las reglas de
-cada tipo de servicio quedan fuera del núcleo: son las que más varían.
+El criterio que ordena los anillos es el nivel: lo de más alto nivel queda en el centro,
+protegido de los cambios en lo de nivel inferior \parencite[73--74]{martin2017}. Por eso,
+a diferencia del esquema de \textcite{palermo2008}, que sitúa el modelo de dominio en el
+centro, aquí las reglas de cada tipo de servicio quedan fuera del núcleo: son de nivel
+inferior a las políticas genéricas de despacho y son las que más varían.
 
 \paragraph{2. Contextos por capacidad de negocio (DDD).}
 Cada tipo de servicio se convierte en un componente que agrupa su modelo: \texttt{Rides}
@@ -333,7 +334,8 @@ muestra la estructura propuesta.
            Entre núcleo y \emph{plugins}, las dependencias apuntan hacia el núcleo; solo la
            capa externa (\texttt{TaxiUI} y \texttt{Main}) conoce los \emph{plugins}
            concretos. Elaboración propia a partir de
-           \textcite[232, 237, 244--246]{martin2017} y \textcite[21--23]{richards2015}.}
+           \textcite[205, 232, 237, 244--246]{martin2017}, \textcite{cockburn2005} y
+           \textcite[21--23]{richards2015}.}
   \label{fig:p5-solucion}
 \end{figure}
 
@@ -455,8 +457,8 @@ El capítulo de Martin sobre el \emph{Kitty Problem} no menciona los adaptadores
 en esta extensión se argumenta, como interpretación propia, a partir de la bibliografía:
 \begin{itemize}
   \item \textbf{Hacia los sistemas externos.} Un adaptador específico de cada tecnología
-        traduce entre el mundo exterior y el puerto de la aplicación, que desconoce lo que
-        hay al otro lado \parencite[«Intent»]{cockburn2005}. En la Arquitectura Limpia
+        traduce entre el mundo exterior y un puerto de la aplicación; la aplicación
+        desconoce lo que hay al otro lado \parencite[«Intent»]{cockburn2005}. En la Arquitectura Limpia
         (Clean), los adaptadores forman la capa de adaptadores de interfaz, que convierte
         los datos del formato de
         los casos de uso y las entidades al de los agentes externos, como otros servicios
