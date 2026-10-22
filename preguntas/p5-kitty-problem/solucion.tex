@@ -245,15 +245,14 @@ despliegan en servicios distintos, el historial debe residir en un almacén prop
 Con este diseño, incorporar la entrega de gatitos consiste en añadir el componente
 \texttt{Kittens} y ajustar la interfaz de usuario y su configuración. El núcleo y
 \texttt{Rides} no se modifican. Hay que reconocer que, si \texttt{Kittens} se reparte en
-varios servicios, la incorporación de sus archivos \emph{jar} también debe coordinarse.
+varios servicios, la incorporación de sus archivos \emph{jar} debe coordinarse entre sí.
 La diferencia con el diseño original es que el cambio es aditivo: no se modifica ni se
-recompila ningún componente existente, y la funcionalidad queda confinada en un único
-componente lógico, aunque no en un único servicio. Conviene precisar, además, que incluso
-en la solución de Martin \texttt{TaxiUI} cambia \parencite[244]{martin2017}: el cambio no
-afecta
-\emph{literalmente} a un único componente, sino que queda confinado a un componente nuevo
-y a un ajuste en la capa externa. Es lo esperable: el cierre total es inalcanzable y, por
-tanto, debe ser estratégico \parencite[106]{martin2017}.
+recompila ningún componente del núcleo ni de \texttt{Rides}, y la funcionalidad queda
+confinada en un único componente lógico (aunque no en un único servicio), más un ajuste
+en la capa externa. Conviene precisar que, incluso en la solución de Martin,
+\texttt{TaxiUI} cambia \parencite[244]{martin2017}: el cambio no afecta
+\emph{literalmente} a un único componente. Es lo esperable: el cierre total es
+inalcanzable y, por tanto, debe ser estratégico \parencite[106]{martin2017}.
 
 \section{\texttt{Kittens} y \texttt{Rides} como \emph{plugins}: OCP y adaptadores}
 \label{sec:p5-plugins}
@@ -267,7 +266,10 @@ siguen la Regla de Dependencia y son creados por factorías bajo el control de l
 de usuario. Al implementar la entrega de gatitos, cambia \texttt{TaxiUI}, pero nada más:
 se añade un nuevo \emph{jar}, \emph{Gem} o DLL que se carga dinámicamente en tiempo de
 ejecución, de modo que la extensión queda desacoplada y puede desarrollarse y desplegarse
-de forma independiente \parencite[244]{martin2017}. La Figura~\ref{fig:p5-solucion}
+de forma independiente \parencite[244]{martin2017}. En la propuesta, esa independencia lo
+es respecto del núcleo y de \texttt{Rides}; entre las piezas de \texttt{Kittens}
+repartidas en varios servicios, el despliegue se coordina, y la capa externa se ajusta
+(Sección~\ref{sec:p5-diseno}). La Figura~\ref{fig:p5-solucion}
 muestra la estructura propuesta.
 
 \begin{figure}[!t]
@@ -331,8 +333,8 @@ muestra la estructura propuesta.
   }
   \caption{Solución propuesta (vista lógica): \texttt{Rides} y \texttt{Kittens} se enchufan
            al núcleo como \emph{plugins}, y los adaptadores aíslan los sistemas externos.
-           Entre núcleo y \emph{plugins}, las dependencias apuntan hacia el núcleo; solo la
-           capa externa (\texttt{TaxiUI} y \texttt{Main}) conoce los \emph{plugins}
+           Entre núcleo y \emph{plugins}, las dependencias apuntan hacia el núcleo; solo
+           \texttt{TaxiUI} y \texttt{Main}, en la capa externa, conocen los \emph{plugins}
            concretos. Elaboración propia a partir de
            \textcite[205, 232, 237, 244--246]{martin2017}, \textcite{cockburn2005} y
            \textcite[21--23]{richards2015}.}
@@ -405,7 +407,7 @@ public interface IReglaSeleccion {
 
 // Template Method: el algoritmo es fijo; ordenar es del plugin.
 public abstract class Selector {
-    // Reglas registradas por los plugins (las inyecta Main).
+    // Reglas aportadas por los plugins, inyectadas por Main.
     private readonly IEnumerable<IReglaSeleccion> reglas;
     protected Selector(IEnumerable<IReglaSeleccion> r) { reglas = r; }
 
@@ -509,15 +511,15 @@ Tiene, sin embargo, costes y límites:
         los tipos de cambio más comunes que se esperan o que ya se han vivido
         \parencite[106]{martin2017}. Elegir el «tipo de servicio» como eje se justifica
         por un cambio concreto, y tiene contrapartida. Por ejemplo, un nuevo criterio de
-        desempate común a todos los tipos de servicio, basado en un dato que ya circula
-        (preferir el vehículo con menor tiempo estimado de llegada), obligaría a
-        modificar el método \texttt{Ordenar} de cada \emph{plugin} o a abrir el
-        \texttt{Selector} del núcleo. En la división por pasos, en cambio, bastaría con
-        modificar \texttt{TaxiSelector}: es el \emph{Kitty Problem} a la inversa. Si un
-        requisito futuro afecta a un eje que el núcleo no abstrajo, habrá que modificar
-        el núcleo. Además, en la solución de Martin, \texttt{TaxiUI} cambia
-        \parencite[244]{martin2017}; en esta propuesta, el ajuste se concentra en
-        \texttt{TaxiUI} y \texttt{Main}.
+        desempate común a todos los tipos de servicio (preferir el vehículo con menor
+        tiempo estimado de llegada) obligaría a modificar el método \texttt{Ordenar} de
+        cada \emph{plugin} o a abrir el \texttt{Selector} del núcleo, y además a ampliar
+        el modelo mínimo compartido con ese dato. El coste no es tanto la dispersión del
+        cambio como la pérdida del cierre del núcleo, que es precisamente lo que el
+        diseño quería proteger; en la división por pasos, ese criterio encajaría con
+        naturalidad en \texttt{TaxiSelector}, que ya selecciona por tiempo
+        \parencite[242]{martin2017}. Si un requisito futuro afecta a un eje que el núcleo
+        no abstrajo, habrá que modificar el núcleo.
   \item \textbf{Acoplamiento entre \emph{plugins}.} Los \emph{plugins} deberían ser
         independientes entre sí y comunicarse lo mínimo \parencite[22]{richards2015}. La
         regla del cliente alérgico hace que \texttt{Kittens} influya en la selección de
@@ -535,11 +537,12 @@ Tiene, sin embargo, costes y límites:
 \end{enumerate}
 
 En conclusión, el \emph{Kitty Problem} no se debió a usar servicios, sino a trazar las
-fronteras sobre los pasos del flujo y no sobre el eje que más cambiaba. Un núcleo estable
-protegido por la Regla de Dependencia, capacidades de negocio cohesivas con su propio
-lenguaje (\texttt{Rides}, \texttt{Kittens}) que se enchufan como \emph{plugins}, y
-adaptadores que aíslan lo externo convierten un cambio que afectaba a todo el sistema en
-una extensión localizada. Eso es exactamente lo que persigue el OCP.
+fronteras de componentes sobre los pasos del flujo y no sobre el eje que más cambiaba. Un
+núcleo estable protegido por la Regla de Dependencia, capacidades de negocio cohesivas
+con su propio lenguaje (\texttt{Rides}, \texttt{Kittens}) que se enchufan como
+\emph{plugins}, y adaptadores que aíslan lo externo convierten un cambio que afectaba a
+todo el sistema en una extensión localizada en un componente lógico, más un ajuste en la
+capa externa. Eso es lo que persigue el OCP.
 
 \section*{Notas de diseño}
 
@@ -556,8 +559,9 @@ una extensión localizada. Eso es exactamente lo que persigue el OCP.
         comparten, a propósito, identificadores y abstracciones del núcleo.
   \item \textbf{Regla del cliente alérgico.} Se usa para mostrar un caso que en apariencia
         obligaría a modificar \texttt{Rides} y que, con un punto de extensión en el núcleo
-        y los datos propios de \texttt{Kittens}, no lo hace. Es un ejemplo propio, no de
-        Martin.
+        y los datos propios de \texttt{Kittens}, no lo hace. El requisito es de Martin
+        \parencite[243]{martin2017}; usarlo para mostrar el punto de extensión es una
+        aportación propia.
   \item \textbf{Adaptadores.} Como el capítulo~27 no los menciona, su papel se
         fundamenta en \textcite{cockburn2005}, \textcite[205]{martin2017},
         \textcite[58, 108]{delatorre2010} y \textcite[23]{richards2015}, y se presenta
