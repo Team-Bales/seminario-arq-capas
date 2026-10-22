@@ -32,7 +32,7 @@
 }
 \renewcommand{\lstlistingname}{Listado}
 
-\chapter{P5: Análisis de un Problema Real: El Kitty Problem y el Principio de Abierto/Cerrado}
+\chapter{P5: Análisis de un Problema Real: El \emph{Kitty Problem} y el Principio de Abierto/Cerrado}
 \label{sec:p5}
 
 \section{Planteamiento}
@@ -175,24 +175,28 @@ solo pueden apuntar hacia adentro, hacia las políticas de más alto nivel
 \parencite[203]{martin2017}. Si el núcleo debe quedar protegido de los cambios en las
 variantes, son las variantes las que deben depender del núcleo
 \parencite[73--74]{martin2017}. En términos de la Arquitectura Onion, el diseño se
-distribuye en anillos en los que todo acoplamiento apunta hacia el centro, las interfaces
-se definen en el núcleo y las implementaciones que dependen de detalles viven en los
-bordes \parencite{palermo2008}. La correspondencia, que es una interpretación propia, es
-la siguiente:
+distribuye en anillos: todo acoplamiento apunta hacia el centro, las interfaces se
+definen en el núcleo y las implementaciones que dependen de detalles viven en los bordes
+\parencite{palermo2008}. La correspondencia, que es una interpretación propia, es la
+siguiente:
 \begingroup\emergencystretch=3em
 \begin{itemize}
   \item \textbf{centro:} las políticas de despacho y sus abstracciones (el selector
         \texttt{Selector}, la interfaz de reglas \texttt{IReglaSeleccion} y el puerto
-        hacia los proveedores);
-  \item \textbf{anillo intermedio:} \texttt{Rides} y \texttt{Kittens}. No son detalles
-        tecnológicos, sino reglas de negocio de cada tipo de servicio, que dependen del
-        centro y lo extienden;
+        hacia los proveedores, \texttt{IProveedorTaxis});
+  \item \textbf{anillo intermedio:} \texttt{Rides} y \texttt{Kittens}, reglas de negocio
+        de cada tipo de servicio (no detalles tecnológicos) que dependen del centro y lo
+        extienden;
   \item \textbf{anillo exterior:} los adaptadores hacia los sistemas externos, que
         constituyen la capa de adaptadores de interfaz \parencite[205]{martin2017}, y la
         interfaz de usuario con \texttt{Main}, el componente que configura el sistema
         \parencite[237]{martin2017}.
 \end{itemize}
 \endgroup
+El criterio que ordena los anillos es la estabilidad: lo más estable queda en el centro,
+protegido de lo que cambia \parencite[73--74]{martin2017}. Por eso, a diferencia del
+esquema de Palermo, que sitúa todo el modelo de dominio en el centro, aquí las reglas de
+cada tipo de servicio quedan fuera del núcleo: son las que más varían.
 
 \paragraph{2. Contextos por capacidad de negocio (DDD).}
 Cada tipo de servicio se convierte en un componente que agrupa su modelo: \texttt{Rides}
@@ -231,14 +235,21 @@ seguir existiendo como antes: cada uno tiene su diseño interno de componentes, 
 funcionalidad se incorpora como clases derivadas, alojadas en sus propios componentes,
 que se añaden a la ruta de carga de cada servicio \parencite[246]{martin2017}. La
 Figura~\ref{fig:p5-solucion} muestra, por tanto, una vista lógica. \texttt{Kittens} es un
-componente lógico que puede desplegarse como varios \emph{jar}, uno en cada servicio que
-lo necesite. Su historial de entregas también es suyo: lo actualiza su parte de despacho
-y lo consulta su regla de selección.
+componente lógico que puede desplegarse como varios archivos \emph{jar}, uno en cada
+servicio que lo necesite. El historial de entregas también pertenece a \texttt{Kittens}:
+lo actualiza su parte de despacho y lo consulta su regla de selección. Si esas partes se
+despliegan en servicios distintos, el historial debe residir en un almacén propio de
+\texttt{Kittens} al que ambas accedan.
 
 Con este diseño, incorporar la entrega de gatitos consiste en añadir el componente
 \texttt{Kittens} y ajustar la interfaz de usuario y su configuración. El núcleo y
-\texttt{Rides} no se modifican. Conviene precisar que, incluso en la solución de Martin,
-\texttt{TaxiUI} también cambia \parencite[244]{martin2017}: el cambio no afecta
+\texttt{Rides} no se modifican. Hay que reconocer que, si \texttt{Kittens} se reparte en
+varios servicios, la incorporación de sus archivos \emph{jar} también debe coordinarse.
+La diferencia con el diseño original es que el cambio es aditivo: no se modifica ni se
+recompila ningún componente existente, y la funcionalidad queda confinada en un único
+componente lógico, aunque no en un único servicio. Conviene precisar, además, que incluso
+en la solución de Martin \texttt{TaxiUI} cambia \parencite[244]{martin2017}: el cambio no
+afecta
 \emph{literalmente} a un único componente, sino que queda confinado a un componente nuevo
 y a un ajuste en la capa externa. Es lo esperable: el cierre total es inalcanzable y, por
 tanto, debe ser estratégico \parencite[106]{martin2017}.
@@ -265,7 +276,7 @@ muestra la estructura propuesta.
       caja/.style={draw=azul, fill=azul!6, rounded corners=3pt, thick, align=center,
                    font=\small},
       abs/.style={draw=azul, fill=white, rounded corners=2pt, font=\scriptsize\ttfamily,
-                  inner sep=2pt, align=center, minimum width=2.05cm},
+                  inner sep=2pt, align=center, minimum width=2.35cm},
       ext/.style={draw=gris, dashed, fill=gris!8, rounded corners=2pt, font=\scriptsize,
                   inner sep=4pt, align=center, minimum width=4.2cm},
       ada/.style={draw=naranja, fill=naranja!10, rounded corners=2pt, font=\scriptsize,
@@ -276,27 +287,27 @@ muestra la estructura propuesta.
     ]
     % Capa externa: interfaz de usuario y Main
     \node[caja, minimum width=14cm, minimum height=1.1cm] (main) at (0,4.35)
-      {\textbf{TaxiUI y Main}: configuración, factorías y registro de los \emph{plugins}\\
-       \footnotesize(se ajustan al añadir \texttt{Kittens})};
+      {\textbf{\texttt{TaxiUI} y \texttt{Main}}: configuración, factorías y registro de los
+       \emph{plugins}\\ \footnotesize(se ajustan al añadir \texttt{Kittens})};
     % Núcleo
-    \node[caja, fill=azul!18, minimum width=12.9cm, minimum height=2.3cm] (core) at (0,1.8) {};
+    \node[caja, fill=azul!18, minimum width=13.0cm, minimum height=2.3cm] (core) at (0,1.8) {};
     \node[font=\footnotesize\bfseries, azul] at (0,2.6)
       {Núcleo de despacho: políticas estables, cerrado a la modificación};
-    \node[abs] at (-5.0,1.55)  {«abstracta»\\Buscador};
-    \node[abs] at (-2.5,1.55)  {«abstracta»\\Selector};
-    \node[abs] at (0,1.55)     {«abstracta»\\Despachador};
-    \node[abs] at (2.5,1.55)   {«interfaz»\\IReglaSeleccion};
-    \node[abs] at (5.0,1.55)   {«interfaz»\\IProveedorTaxis};
+    \node[abs] at (-5.1,1.55)  {«abstracta»\\Buscador};
+    \node[abs] at (-2.55,1.55)  {«abstracta»\\Selector};
+    \node[abs] at (0,1.55)     {«interfaz»\\IProveedorTaxis};
+    \node[abs] at (2.55,1.55)  {«abstracta»\\Despachador};
+    \node[abs] at (5.1,1.55)  {«interfaz»\\IReglaSeleccion};
     % Plugins
     \node[caja, minimum width=5.4cm, minimum height=1.6cm] (rides) at (-3.7,-1.2)
-      {\textbf{Rides} (\emph{plugin})\\[1pt]\scriptsize búsqueda, selección y despacho de viajes};
+      {\textbf{\texttt{Rides}} (\emph{plugin})\\[1pt]\scriptsize búsqueda, selección y despacho de viajes};
     \node[caja, minimum width=5.4cm, minimum height=1.6cm] (kit) at (3.7,-1.2)
-      {\textbf{Kittens} (\emph{plugin})\\[1pt]\scriptsize búsqueda, selección y despacho de
+      {\textbf{\texttt{Kittens}} (\emph{plugin})\\[1pt]\scriptsize búsqueda, selección y despacho de
        entregas\\\scriptsize reglas de alergia · registro de alergias · historial};
     % Adaptadores y sistemas externos
     \node[ada] (a1) at (-3.7,-3.35) {Adaptadores de proveedores de taxis\\(uno por proveedor)};
     \node[ada] (a2) at (3.7,-3.35)  {Adaptadores de \texttt{Kittens}\\(puntos de recogida,
-                                      órdenes a proveedores participantes)};
+                                      órdenes a proveedores,\\persistencia de alergias e historial)};
     \node[ext] (x1) at (-3.7,-5.0)  {Sistemas de los proveedores};
     \node[ext] (x2) at (3.7,-5.0)   {Puntos de recogida y proveedores participantes};
     % Relaciones
@@ -314,22 +325,22 @@ muestra la estructura propuesta.
       {implementa/extiende (apunta hacia lo estable)};
     \draw[usa]  (0.6,-6.2) -- ++(0.8,0) node[right, font=\scriptsize, black] {usa};
     \draw[crea] (2.9,-6.2) -- ++(0.8,0) node[right, font=\scriptsize, black]
-      {crea (factorías en Main)};
+      {crea (factorías en \texttt{Main})};
   \end{tikzpicture}%
   }
   \caption{Solución propuesta (vista lógica): \texttt{Rides} y \texttt{Kittens} se enchufan
            al núcleo como \emph{plugins}, y los adaptadores aíslan los sistemas externos.
-           Entre núcleo y \emph{plugins}, las dependencias apuntan hacia el núcleo; solo
-           \texttt{Main}, el componente más externo, conoce los \emph{plugins} concretos.
-           Elaboración propia a partir de \textcite[244--246]{martin2017} y
-           \textcite[21--23]{richards2015}.}
+           Entre núcleo y \emph{plugins}, las dependencias apuntan hacia el núcleo; solo la
+           capa externa (\texttt{TaxiUI} y \texttt{Main}) conoce los \emph{plugins}
+           concretos. Elaboración propia a partir de
+           \textcite[232, 237, 244--246]{martin2017} y \textcite[21--23]{richards2015}.}
   \label{fig:p5-solucion}
 \end{figure}
 
 \paragraph{Por qué respeta el OCP.}
 El OCP, formulado por Meyer en 1988 (como se citó en \cite[70]{martin2017}), establece
 que un artefacto de software debe estar abierto a la extensión y cerrado a la
-modificación. A nivel arquitectónico se consigue separando la funcionalidad según cómo,
+modificación. En el plano arquitectónico se consigue separando la funcionalidad según cómo,
 por qué y cuándo cambia, y organizándola en una jerarquía de componentes en la que los de
 nivel superior quedan protegidos de los cambios en los de nivel inferior
 \parencite[74]{martin2017}. En la propuesta:
@@ -345,23 +356,23 @@ nivel superior quedan protegidos de los cambios en los de nivel inferior
 
 Esta estructura coincide con el patrón \emph{microkernel}, también llamado de
 \emph{plugins}: un sistema núcleo al que se añaden módulos \emph{plugin} independientes
-que aportan nuevas capacidades de negocio, y que el núcleo localiza mediante un registro
-\parencite[21--22]{richards2015}. En la propuesta, \texttt{Main} cumple ese papel de
-registro: crea los \emph{plugins} y entrega sus reglas al núcleo por inyección de
-dependencias. Martin sitúa precisamente en \texttt{Main} la inyección de dependencias, y
+que aportan nuevas capacidades de negocio, y que el núcleo suele localizar mediante un
+registro \parencite[21--22]{richards2015}. En la propuesta, \texttt{Main} sustituye a ese
+registro: en lugar de que el núcleo localice los \emph{plugins}, \texttt{Main} los crea y
+le entrega sus reglas por inyección de dependencias. Martin sitúa precisamente en \texttt{Main} la inyección de dependencias, y
 lo describe como el componente más «sucio» de todos \parencite[232]{martin2017}. Además,
 \texttt{Main} es en sí mismo un \emph{plugin} de la aplicación, y puede haber varios, uno
 por configuración (por ejemplo, por país, jurisdicción o cliente)
 \parencite[237]{martin2017}. Aplicado a este caso, eso permitiría activar
-\texttt{Kittens} solo donde exista el servicio.
+\texttt{Kittens} solo donde se ofrezca la entrega de gatitos.
 
 \paragraph{Ejemplo: las reglas de alergia como reglas de selección enchufables.}
 El requisito de las alergias muestra hasta dónde llega la extensión
 (Listado~\ref{lst:p5-reglas}). El \texttt{Selector} del núcleo es un \emph{Template
 Method}: fija el algoritmo y deja la ordenación a cada \emph{plugin}. Además, recibe las
-reglas registradas, que funcionan como filtros que combina sin conocerlas, y solo usa
-identificadores que ya tenía (de vehículo, de conductor y de cliente). \texttt{Kittens}
-aporta dos reglas:
+reglas registradas, que funcionan como filtros que combina sin conocerlas. Las reglas
+solo usan identificadores que el núcleo ya exponía (de vehículo, de conductor y de
+cliente). \texttt{Kittens} aporta dos reglas:
 \begin{itemize}
   \item excluir a los conductores alérgicos en las entregas;
   \item no asignar a un cliente alérgico un vehículo que haya llevado gatitos en los
@@ -373,10 +384,19 @@ pertenecen al modelo de \texttt{Kittens}, que los consulta por identificador. Qu
 núcleo acepte reglas adicionales es la decisión de cierre estratégico que hace posible la
 extensión (criterio propio a partir de \cite[106]{martin2017}).
 
+% Evita que el título del listado quede solo al pie de una página.
+\par\penalty-100 \ifdim\dimexpr\pagegoal-\pagetotal\relax<8\baselineskip\newpage\fi
 \begin{lstlisting}[style=codigo, language={[Sharp]C},
-  caption={Esbozo en estilo C\# del punto de extensión del núcleo y de las reglas que aporta el \emph{plugin} Kittens.},
+  caption={Esbozo en estilo C\# del punto de extensión del núcleo y de las reglas que aporta el \emph{plugin} \texttt{Kittens}.},
   label={lst:p5-reglas}]
 // --- Núcleo de despacho (cerrado a la modificación) ---
+// Modelo mínimo compartido: solo identificadores.
+public abstract class Pedido { public string ClienteId { get; init; } }
+public class Vehiculo {
+    public string Id { get; init; }
+    public string ConductorId { get; init; }
+}
+
 public interface IReglaSeleccion {
     bool Admite(Vehiculo vehiculo, Pedido pedido);
 }
@@ -437,22 +457,26 @@ en esta extensión se argumenta, como interpretación propia, a partir de la bib
   \item \textbf{Hacia los sistemas externos.} Un adaptador específico de cada tecnología
         traduce entre el mundo exterior y el puerto de la aplicación, que desconoce lo que
         hay al otro lado \parencite[«Intent»]{cockburn2005}. En la Arquitectura Limpia
-        forman la capa de adaptadores de interfaz, que convierte los datos del formato de
+        (Clean), los adaptadores forman la capa de adaptadores de interfaz, que convierte
+        los datos del formato de
         los casos de uso y las entidades al de los agentes externos, como otros servicios
         \parencite[205]{martin2017}. La \emph{Guía de Arquitectura N-Capas} los llama
         agentes de servicios externos: aíslan las particularidades de cada servicio, de
         modo que pueda sustituirse sin afectar al sistema
         \parencite[58, 108]{delatorre2010}.
   \item \textbf{Adaptadores propios de \texttt{Kittens}.} \texttt{Kittens} necesita
-        conocer los puntos de recogida y enviar las órdenes de recogida a los proveedores
-        que participan. Lo hace mediante sus propios adaptadores, que se añaden junto al
-        \emph{plugin}. Los adaptadores de proveedores que ya usa el núcleo no se
+        conocer los puntos de recogida, enviar las órdenes de recogida a los proveedores
+        que participan y guardar sus propios datos. Lo hace mediante adaptadores que se
+        añaden junto al \emph{plugin}: uno por sistema externo y otro de persistencia, que
+        implementa \texttt{IRegistroAlergias} e \texttt{IHistorialEntregasGatitos}. La
+        alergia que declara un pasajero la registra \texttt{TaxiUI} en \texttt{Kittens},
+        no en el núcleo. Los adaptadores de proveedores que ya usa el núcleo no se
         modifican, porque \texttt{Kittens} no amplía sus contratos, sino que añade los
         suyos (criterio propio). Así, ni el núcleo ni el \emph{plugin} conocen formatos o
         protocolos externos.
   \item \textbf{Entre un \emph{plugin} y el núcleo.} Cuando un \emph{plugin} trae un
-        contrato propio, por ejemplo, porque lo desarrolla un tercero, se crea un
-        adaptador entre ese contrato y el contrato estándar del núcleo
+        contrato propio (por ejemplo, porque lo desarrolla un tercero), es habitual crear
+        un adaptador entre ese contrato y el contrato estándar del núcleo
         \parencite[23]{richards2015}. Si la logística de gatitos la aportara una empresa
         asociada, un adaptador la conectaría al núcleo sin modificarlo.
 \end{itemize}
@@ -483,24 +507,26 @@ Tiene, sin embargo, costes y límites:
         los tipos de cambio más comunes que se esperan o que ya se han vivido
         \parencite[106]{martin2017}. Elegir el «tipo de servicio» como eje se justifica
         por un cambio concreto, y tiene contrapartida. Por ejemplo, un nuevo criterio de
-        ordenación común a todos los servicios (priorizar los vehículos eléctricos)
-        obligaría a modificar el método \texttt{Ordenar} de cada \emph{plugin}: es el
-        \emph{Kitty Problem} girado, que la división por pasos sí habría absorbido en un
-        solo lugar. Si un requisito futuro afecta a un eje que el núcleo no abstrajo,
-        habrá que modificar el núcleo. Además, en la solución de Martin \texttt{TaxiUI}
-        también cambia \parencite[244]{martin2017}; en esta propuesta, el ajuste se
-        concentra en \texttt{TaxiUI} y \texttt{Main}.
+        desempate común a todos los tipos de servicio, basado en un dato que ya circula
+        (preferir el vehículo con menor tiempo estimado de llegada), obligaría a
+        modificar el método \texttt{Ordenar} de cada \emph{plugin} o a abrir el
+        \texttt{Selector} del núcleo. En la división por pasos, en cambio, bastaría con
+        modificar \texttt{TaxiSelector}: es el \emph{Kitty Problem} a la inversa. Si un
+        requisito futuro afecta a un eje que el núcleo no abstrajo, habrá que modificar
+        el núcleo. Además, en la solución de Martin, \texttt{TaxiUI} cambia
+        \parencite[244]{martin2017}; en esta propuesta, el ajuste se concentra en
+        \texttt{TaxiUI} y \texttt{Main}.
   \item \textbf{Acoplamiento entre \emph{plugins}.} Los \emph{plugins} deberían ser
         independientes entre sí y comunicarse lo mínimo \parencite[22]{richards2015}. La
         regla del cliente alérgico hace que \texttt{Kittens} influya en la selección de
         los viajes de \texttt{Rides}. El punto de extensión del núcleo vuelve explícito
-        ese acoplamiento, pero no lo elimina: cada \emph{plugin} puede probarse aislado,
-        pero la selección completa debe probarse con todas las reglas registradas.
+        ese acoplamiento, pero no lo elimina: aunque cada \emph{plugin} puede probarse
+        aislado, la selección completa debe probarse con todas las reglas registradas.
   \item \textbf{Complejidad de desarrollo.} Exige un diseño cuidadoso y control de los
         contratos: versionado, registro de \emph{plugins}, granularidad y formas de
         conexión \parencite[26]{richards2015}.
   \item \textbf{Escalabilidad.} Muchas implementaciones del patrón se despliegan como una
-        sola unidad, con escalabilidad baja, aunque a veces puede lograrse a nivel de
+        sola unidad, con escalabilidad baja, aunque a veces puede lograrse por
         \emph{plugin} \parencite[26]{richards2015}. Si se mantienen servicios
         distribuidos, hay que evitar el error de hacerlos demasiado pequeños
         \parencite[cap.~17]{richardsford2020}.
@@ -524,7 +550,7 @@ una extensión localizada. Eso es exactamente lo que persigue el OCP.
         interfaz de usuario también cambia, en coherencia con la propia solución de Martin
         y con el cierre estratégico.
   \item \textbf{Contextos con un modelo mínimo compartido.} \texttt{Rides} y
-        \texttt{Kittens} se presentan como contextos delimitados en su modelo propio que
+        \texttt{Kittens} se presentan como Contextos Delimitados en su modelo propio que
         comparten, a propósito, identificadores y abstracciones del núcleo.
   \item \textbf{Regla del cliente alérgico.} Se usa para mostrar un caso que en apariencia
         obligaría a modificar \texttt{Rides} y que, con un punto de extensión en el núcleo
