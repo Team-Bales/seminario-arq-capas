@@ -1,0 +1,109 @@
+% ============================================================
+% investigacion/p1-regla-dependencia/notas.tex — INV-P1 (issue #2)
+% Integrante: Heily Rodríguez Rodríguez
+% Fragmento puro: se incluye desde preguntas/p1-trade-offs/solucion.tex
+% mediante \input{investigacion/p1-regla-dependencia/notas}.
+% Fuente de trabajo: notas.md (misma carpeta).
+% Citas: páginas impresas de cada libro. El artículo web de Cockburn
+% no tiene paginación y se cita por sección con \citep[«Sección»]{cockburn2005}.
+% ============================================================
+
+\section*{Notas de investigación: Regla de Dependencia y Puertos \& Adaptadores}
+
+\section{Síntesis}
+
+En la Arquitectura N-Capas tradicional, las dependencias del código fuente siguen el flujo de control. La presentación invoca al negocio y el negocio invoca a los datos, y para invocar a un módulo hay que nombrarlo \citep[pp.~44--45]{martin2017}. La propia guía de Microsoft describe esta relación tradicional, en la que las capas de alto nivel dependen de las de bajo nivel \fuente{delatorre2010}{64}. El resultado es que la lógica de negocio, que debería ser la parte más estable del sistema, conoce a la persistencia y depende de ella, aunque la persistencia es la parte más volátil. Martin pone como ejemplo de componente rígido precisamente el esquema de base de datos: concreto, volátil y del que dependen muchos otros componentes \fuente{martin2017}{129}. Cockburn identifica el mismo defecto y lo llama \emph{enredo} entre la lógica de negocio y la interacción con entidades externas. Además, observa que en la práctica no se respetan las líneas de los diagramas de capas \citep[«Nature of the Solution»]{cockburn2005}.
+
+La \textbf{Regla de Dependencia} de Martin establece que las dependencias del código fuente solo pueden apuntar hacia dentro, hacia las políticas de más alto nivel: nada de un círculo interno puede nombrar algo declarado en uno externo \fuente{martin2017}{203}. Esto es posible gracias a la inversión de dependencias. Al interponer una interfaz, la dependencia del código queda orientada \emph{en contra} del flujo de control \citep[pp.~45, 206]{martin2017}. Así, la base de datos y la interfaz de usuario pasan a ser \emph{plugins} de las reglas de negocio \citep[pp.~46, 170\textendash 171]{martin2017}.
+
+\textbf{Puertos y Adaptadores} llega a la misma estructura desde otro ángulo. La asimetría que importa no es arriba/abajo ni izquierda/derecha, sino dentro/fuera. Un \emph{puerto} es una conversación con un propósito, expresada como una API. Un \emph{adaptador} traduce esa API a una tecnología concreta, y un mismo puerto admite varios adaptadores: SQL, ficheros planos o una base de datos simulada en memoria \citep[«Nature of the Solution»]{cockburn2005}.
+
+Para la P1, ambas propuestas dan el mismo beneficio. La lógica de negocio se puede probar sin interfaz de usuario ni base de datos \parencites[p.~202]{martin2017}[«Intent»]{cockburn2005}, y cambiar el motor de persistencia se reduce a escribir un nuevo adaptador. \citet[p.~202]{martin2017} menciona de forma explícita el ejemplo de sustituir SQL Server por Mongo. Hay un matiz importante: el propio Martin advierte que estos reemplazos pueden no ser triviales, aunque la estructura de \emph{plugins} los hace factibles \fuente{martin2017}{171}.
+
+\section{Conceptos clave}
+
+Los conceptos se agrupan en tres tablas: la Regla de Dependencia y la inversión de dependencias (Tabla~\ref{tab:inv-p1-regla}), la N-Capas tradicional y las métricas de acoplamiento (Tabla~\ref{tab:inv-p1-metricas}) y los Puertos y Adaptadores junto con la testabilidad (Tabla~\ref{tab:inv-p1-puertos}). Las definiciones son síntesis propias.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Conceptos clave de INV-P1: Regla de Dependencia e inversión de dependencias}
+  \label{tab:inv-p1-regla}
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.51\linewidth}p{0.22\linewidth}@{}}
+    \toprule
+    Concepto & Definición & Fuente \\
+    \midrule
+    \raggedright Regla de Dependencia & Las dependencias del código fuente solo apuntan hacia dentro, hacia políticas de mayor nivel. Ningún nombre declarado en un círculo externo puede aparecer en uno interno. & \raggedright \fuente{martin2017}{203} \tabularnewline
+    \raggedright Formatos de datos en la frontera & Dentro no deben usarse los formatos de datos de un círculo externo. Por la frontera solo cruzan estructuras simples, nunca filas de base de datos ni entidades. & \raggedright \citep[pp.~204, 207]{martin2017} \tabularnewline
+    \raggedright Interface Adapters & Capa que convierte los datos entre el formato de los casos de uso y el de la base de datos o la web. Todo el SQL queda confinado en ella. & \raggedright \fuente{martin2017}{205} \tabularnewline
+    \raggedright Dependencias frente a flujo de control & Sin polimorfismo, las dependencias del código siguen el flujo de control. Con una interfaz intermedia, cualquier dependencia puede invertirse. & \raggedright \citep[pp.~44--46]{martin2017} \tabularnewline
+    \raggedright Cruce de fronteras & Cuando el control va de dentro hacia fuera, el círculo interno llama a una interfaz propia (\emph{output port}) que implementa el externo. & \raggedright \fuente{martin2017}{206} \tabularnewline
+    \raggedright DIP & Los sistemas más flexibles dependen solo de abstracciones. Se evitan las concreciones \emph{volátiles}; las estables se toleran. & \raggedright \citep[pp.~87--88]{martin2017} \tabularnewline
+    \raggedright Componente \texttt{main} & Las violaciones inevitables del DIP se concentran en pocos componentes concretos, típicamente \texttt{main}, donde se instancian las implementaciones. & \raggedright \fuente{martin2017}{91} \tabularnewline
+    \raggedright Arquitectura de \emph{plugins} & Los componentes de base de datos e interfaz gráfica dependen de las reglas de negocio. Las interfaces de base de datos viven en el componente de negocio. & \raggedright \citep[pp.~168--171]{martin2017} \tabularnewline
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Conceptos clave de INV-P1: la N-Capas tradicional y las métricas de acoplamiento}
+  \label{tab:inv-p1-metricas}
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.51\linewidth}p{0.22\linewidth}@{}}
+    \toprule
+    Concepto & Definición & Fuente \\
+    \midrule
+    \raggedright Capas cerradas & Cada petición atraviesa la capa inmediatamente inferior, lo que aísla los cambios, pero las dependencias siguen apuntando hacia la persistencia. & \raggedright \parencites[pp.~3--4]{richards2015}[p.~64]{delatorre2010} \tabularnewline
+    \raggedright \emph{Fan-in} / \emph{Fan-out} & Dependencias entrantes y salientes de un componente. Corresponden al acoplamiento aferente ($C_a$) y eferente ($C_e$). & \raggedright \fuente{martin2017}{122} \tabularnewline
+    \raggedright Inestabilidad ($I$) & $I = \textit{Fan-out} / (\textit{Fan-in} + \textit{Fan-out})$, con $I \in [0, 1]$. $I = 0$ es máximamente estable e $I = 1$, máximamente inestable. & \raggedright \parencites[p.~122]{martin2017}[cap.~3]{richardsford2020} \tabularnewline
+    \raggedright Aferente y eferente & Términos de \emph{Structured Design} (Yourdon y Constantine, 1979): conexiones entrantes y salientes. & \raggedright \citep[cap.~3, «Coupling»]{richardsford2020} \tabularnewline
+    \raggedright SDP & \emph{Depend in the direction of stability}: $I$ debe decrecer en la dirección de las dependencias. Una violación se corrige con el DIP. & \raggedright \citep[pp.~120, 123\textendash 125]{martin2017} \tabularnewline
+    \raggedright SAP & Un componente debe ser tan abstracto como estable. La política de alto nivel va en componentes estables y abstractos. & \raggedright \fuente{martin2017}{126} \tabularnewline
+    \raggedright Zona de dolor & Componentes muy estables y muy concretos: rígidos, difíciles de extender y de cambiar. El ejemplo de Martin es el esquema de base de datos. & \raggedright \fuente{martin2017}{129} \tabularnewline
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Conceptos clave de INV-P1: Puertos y Adaptadores y testabilidad}
+  \label{tab:inv-p1-puertos}
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.51\linewidth}p{0.22\linewidth}@{}}
+    \toprule
+    Concepto & Definición & Fuente \\
+    \midrule
+    \raggedright Puerto & Conversación con un propósito entre la aplicación y el exterior, cuyo protocolo toma la forma de una API. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Adaptador & Traduce la API del puerto a una tecnología concreta. Puede haber varios por puerto. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Asimetría dentro/fuera & La asimetría que importa es interior/exterior. El hexágono elimina la lectura arriba-abajo de las capas apiladas. & \raggedright \citep[«Nature of the Solution»]{cockburn2005} \tabularnewline
+    \raggedright Actores primarios y secundarios & El actor primario conduce la aplicación (\emph{driving}); el secundario es conducido por ella (\emph{driven}), como la base de datos. Puertos y adaptadores toman el nombre del actor al que sirven. & \raggedright \citep[«The Left-Right Asymmetry»]{cockburn2005} \tabularnewline
+    \raggedright Base de datos simulada en memoria & Adaptador que sustituye a un actor secundario en las pruebas, como \texttt{RateRepository} / \texttt{MockRateRepository}, inyectado por constructor. & \raggedright \citep[«Sample Code»]{cockburn2005} \tabularnewline
+    \raggedright Database Gateway & Interfaz polimórfica con las operaciones CRUD de la aplicación. Los casos de uso se prueban sustituyéndola por \emph{stubs}. & \raggedright \fuente{martin2017}{214} \tabularnewline
+    \raggedright Repositorios falsos & Repositorios en memoria que sustituyen a los reales en las pruebas, configurados mediante el contenedor IoC. & \raggedright \citep[pp.~105, 146]{delatorre2010} \tabularnewline
+    \raggedright DIP según la guía N-Capas & Los contratos residen en el alto nivel, así que el bajo nivel pasa a depender de él en tiempo de compilación. & \raggedright \citep[pp.~64--65]{delatorre2010} \tabularnewline
+    \raggedright Contratos de repositorio en el dominio & Las interfaces de los repositorios se definen en el dominio y se implementan en infraestructura; las entidades ignoran la persistencia. & \raggedright \citep[pp.~55, 145\textendash 146]{delatorre2010} \tabularnewline
+    \raggedright \emph{Fragile Tests Problem} & Las pruebas acopladas a partes volátiles se rompen en masa ante cambios triviales. Regla: \emph{Don't depend on volatile things}. & \raggedright \citep[pp.~251--252]{martin2017} \tabularnewline
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Puntos de conexión con las preguntas}
+
+\begin{itemize}
+  \item \textbf{P1, error de acoplamiento.} Las dependencias del código siguen el flujo de control, así que el negocio depende de la persistencia \parencites[pp.~44--45]{martin2017}[p.~64]{delatorre2010}. Una capa volátil y concreta es objeto de dependencia de la lógica de negocio, en contra de la lectura cualitativa del SDP \fuente{martin2017}{120} y del SAP, lo que la sitúa en la zona de dolor \citep[pp.~126, 129]{martin2017}. Es el enredo entre negocio y exterior que describe \citet[«Nature of the Solution»]{cockburn2005}.
+  \item \textbf{P1, solución estructural.} Se invierte la dependencia con interfaces definidas en el núcleo, siguiendo la Regla de Dependencia \citep[pp.~203, 206]{martin2017}. La base de datos pasa a ser un actor secundario, al que se accede por un puerto secundario mediante un adaptador intercambiable \citep[«Nature of the Solution», «The Left-Right Asymmetry»]{cockburn2005}.
+  \item \textbf{P1, testabilidad.} Se sustituye el adaptador real por un \emph{mock} o un repositorio en memoria \parencites[«Sample Code»]{cockburn2005}[p.~214]{martin2017}[pp.~105, 146]{delatorre2010}. Las pruebas evitan recursos costosos como la base de datos \fuente{martin2017}{252} y dejan de depender de partes volátiles \fuente{martin2017}{251}.
+  \item \textbf{P1, cambio a MongoDB.} Basta con un nuevo adaptador o una nueva implementación del repositorio \parencites[pp.~170--171, 202]{martin2017}[p.~146]{delatorre2010}, aunque el cambio no siempre es trivial \fuente{martin2017}{171}.
+  \item \textbf{P2 y P4.} Para la P2: la asimetría dentro/fuera y la relación con el patrón \emph{Adapter} \citep[«Nature of the Solution», «Related Patterns»]{cockburn2005}. Para la P4: el DIP, el componente \texttt{main} y el \emph{output port} \citep[pp.~87--91, 206]{martin2017}.
+\end{itemize}
+
+\section*{Notas de diseño}
+
+\paragraph{El acoplamiento eferente no se critica con la métrica del SDP.} El issue habla de «alto acoplamiento eferente» en la capa de negocio. Sin embargo, según la métrica de Martin, la N-Capas \emph{no} viola el SDP: la capa de datos tiene dependientes y ninguna dependencia saliente, así que su $I = 0$, mientras que la de negocio tiene $I > 0$. Como el SDP pide que $I$ decrezca en la dirección de la dependencia, la relación negocio $\rightarrow$ datos lo cumple \citep[pp.~122--123]{martin2017}. Por eso se eligió otro ángulo. La crítica se apoya en la lectura cualitativa del SDP, según la cual un componente que se espera volátil no debe ser objeto de dependencia de otro difícil de cambiar \fuente{martin2017}{120}, y en el SAP: la capa de datos es estable pero concreta, lo que la sitúa en la zona de dolor \citep[pp.~126, 129]{martin2017}. La inversión de dependencias resuelve ambas cosas, tal como Martin corrige una violación del SDP con el DIP \citep[pp.~124--125]{martin2017}.
+
+\paragraph{La testabilidad «High» de Richards no contradice el enunciado.} \citet[p.~9]{richards2015} califica como alta la testabilidad de la N-Capas, pero sus ejemplos solo simulan la presentación o el negocio, nunca la persistencia. La guía de Microsoft también propone \emph{mocks} por capa \citep[pp.~37--38]{delatorre2010}, pero aclara que el bajo nivel solo pasa a depender del alto nivel cuando los contratos se colocan en este último \citep[pp.~64--65]{delatorre2010}. La diferencia de Clean y Hexagonal no es \emph{que} existan interfaces, sino \emph{dónde viven} \parencites[pp.~168--169]{martin2017}[p.~145]{delatorre2010}.
+
+\paragraph{La interfaz es necesaria, pero no suficiente para migrar a MongoDB.} Además del puerto, por la frontera no pueden cruzar estructuras propias del motor, como filas o documentos \fuente{martin2017}{207}, y las entidades deben ser ignorantes de la persistencia \fuente{delatorre2010}{55}. Si no, el formato del motor se filtra hacia dentro y viola la Regla de Dependencia \fuente{martin2017}{204}. La traducción entre ambos modelos corresponde a la capa \emph{Interface Adapters} \fuente{martin2017}{205}.
+
+\paragraph{Fuentes.} Se usaron solo fuentes de la bibliografía recomendada del seminario, todas presentes en \texttt{core.bib}. La mención a Yourdon y Constantine (1979) se toma de \citet[cap.~3]{richardsford2020} y no se añade como entrada propia, porque no se consultó el original.
