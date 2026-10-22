@@ -217,6 +217,7 @@ consistencia eventual. La propuesta combina ambos (Figura~\ref{fig:p3-mapa}).
 
 \begin{figure}[htbp]
   \centering
+  \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
   \begin{tikzpicture}[
       ctx/.style={draw=azul, fill=azul!6, rounded corners=4pt, thick,
                   minimum width=5.0cm, minimum height=2.2cm, align=center, font=\small},
@@ -251,7 +252,8 @@ consistencia eventual. La propuesta combina ambos (Figura~\ref{fig:p3-mapa}).
       {evento de dominio asíncrono (bróker, publicar/suscribir)};
     \draw[sync] (7.4,-7.3) -- ++(1.1,0) node[right,font=\scriptsize]
       {consulta síncrona};
-  \end{tikzpicture}
+  \end{tikzpicture}%
+  }
   \caption{Mapa de contextos propuesto. Los eventos se publican en un bróker de
            mensajes; la flecha discontinua es la única interacción síncrona.}
   \label{fig:p3-mapa}
@@ -379,6 +381,7 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
 
 \begin{figure}[!t]
   \centering
+  \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
   \begin{tikzpicture}[
       capa/.style={draw=azul, rounded corners=6pt, thick},
       caja/.style={draw=azul, fill=white, rounded corners=2pt, font=\scriptsize\ttfamily,
@@ -435,7 +438,8 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
       {implementa un puerto (la dependencia apunta hacia el núcleo)};
     \draw[usa]  (3.4,-7.15) -- ++(0.9,0) node[right,font=\scriptsize,black]
       {usa / invoca};
-  \end{tikzpicture}
+  \end{tikzpicture}%
+  }
   \caption{Estructura interna Onion/Clean del contexto de Siniestros. El Agente de
            Servicio es el único componente que conoce el protocolo y el formato de
            Suscripción.}
@@ -526,7 +530,7 @@ cambiantes y varias áreas de expertos:
 \end{itemize}
 
 Tiene, sin embargo, costes que deben asumirse de forma consciente:
-\begin{enumerate}[label=(\roman*)]
+\begin{enumerate}[label=(\arabic*)]
   \item \textbf{Duplicación de datos y de código entre contextos}, que es el precio del
         desacoplamiento \parencite[cap.~17]{richardsford2020}.
   \item \textbf{Consistencia eventual y menor control del flujo.} Los contextos pueden
