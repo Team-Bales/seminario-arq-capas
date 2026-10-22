@@ -50,7 +50,8 @@ pregunta pide:
   \item describir el problema y explicar por qué dividir el sistema en servicios basados
         en verbos o entidades funcionales (como \texttt{TaxiFinder} o
         \texttt{TaxiSelector}) llevó a él;
-  \item explicar cómo, con los principios de DDD y de la Arquitectura Onion/Clean, podría
+  \item explicar cómo, con los principios de DDD y de las arquitecturas Onion (Cebolla) y
+        Clean (Limpia), podría
         haberse diseñado el sistema para que un cambio así afectara a un solo componente
         o servicio, y
   \item proponer una solución en la que componentes como \texttt{Kittens} y
@@ -363,8 +364,9 @@ Esta estructura coincide con el patrón \emph{microkernel}, también llamado de
 que aportan nuevas capacidades de negocio, y que el núcleo suele localizar mediante un
 registro \parencite[21--22]{richards2015}. En la propuesta, \texttt{Main} sustituye a ese
 registro: en lugar de que el núcleo localice los \emph{plugins}, \texttt{Main} los crea y
-le entrega sus reglas por inyección de dependencias. Martin sitúa precisamente en \texttt{Main} la inyección de dependencias, y
-lo describe como el componente más «sucio» de todos \parencite[232]{martin2017}. Además,
+le entrega sus reglas por inyección de dependencias, tarea que
+\textcite[232]{martin2017} sitúa precisamente en ese componente, al que describe como el
+más «sucio» de todos. Además,
 \texttt{Main} es en sí mismo un \emph{plugin} de la aplicación, y puede haber varios, uno
 por configuración (por ejemplo, por país, jurisdicción o cliente)
 \parencite[237]{martin2017}. Aplicado a este caso, eso permitiría activar
@@ -460,23 +462,23 @@ en esta extensión se argumenta, como interpretación propia, a partir de la bib
 \begin{itemize}
   \item \textbf{Hacia los sistemas externos.} Un adaptador específico de cada tecnología
         traduce entre el mundo exterior y un puerto de la aplicación; la aplicación
-        desconoce lo que hay al otro lado \parencite[«Intent»]{cockburn2005}. En la Arquitectura Limpia
-        (Clean), los adaptadores forman la capa de adaptadores de interfaz, que convierte
-        los datos del formato de
-        los casos de uso y las entidades al de los agentes externos, como otros servicios
+        desconoce lo que hay al otro lado \parencite[«Intent»]{cockburn2005}. En la
+        Arquitectura Limpia, los adaptadores forman la capa de adaptadores de interfaz, que
+        convierte los datos del formato de los casos de uso y las entidades al de los
+        agentes externos, como otros servicios
         \parencite[205]{martin2017}. La \emph{Guía de Arquitectura N-Capas} los llama
         agentes de servicios externos: aíslan las particularidades de cada servicio, de
         modo que pueda sustituirse sin afectar al sistema
         \parencite[58, 108]{delatorre2010}.
-  \item \textbf{Adaptadores propios de \texttt{Kittens}.} \texttt{Kittens} necesita
+  \item \textbf{Adaptadores propios de \texttt{Kittens}.} El \emph{plugin} necesita
         conocer los puntos de recogida, enviar las órdenes de recogida a los proveedores
         que participan y guardar sus propios datos. Lo hace mediante adaptadores que se
         añaden junto al \emph{plugin}: uno por sistema externo y otro de persistencia, que
         implementa \texttt{IRegistroAlergias} e \texttt{IHistorialEntregasGatitos}. La
         alergia que declara un pasajero la registra \texttt{TaxiUI} en \texttt{Kittens},
         no en el núcleo. Los adaptadores de proveedores que ya usa el núcleo no se
-        modifican, porque \texttt{Kittens} no amplía sus contratos, sino que añade los
-        suyos (criterio propio). Así, ni el núcleo ni el \emph{plugin} conocen formatos o
+        modifican, porque \texttt{Kittens} no amplía los contratos del núcleo, sino que
+        define otros nuevos (criterio propio). Así, ni el núcleo ni el \emph{plugin} conocen formatos o
         protocolos externos.
   \item \textbf{Entre un \emph{plugin} y el núcleo.} Cuando un \emph{plugin} trae un
         contrato propio (por ejemplo, porque lo desarrolla un tercero), es habitual crear
@@ -509,7 +511,7 @@ Tiene, sin embargo, costes y límites:
 \begin{enumerate}[label=(\arabic*)]
   \item \textbf{El eje de cambio es una apuesta.} El núcleo solo queda cerrado frente a
         los tipos de cambio más comunes que se esperan o que ya se han vivido
-        \parencite[106]{martin2017}. Elegir el «tipo de servicio» como eje se justifica
+        \parencite[106]{martin2017}. Elegir el \emph{tipo de servicio} como eje se justifica
         por un cambio concreto, y tiene contrapartida. Por ejemplo, un nuevo criterio de
         desempate común a todos los tipos de servicio (preferir el vehículo con menor
         tiempo estimado de llegada) obligaría a modificar el método \texttt{Ordenar} de
@@ -555,7 +557,7 @@ capa externa. Eso es lo que persigue el OCP.
         interfaz de usuario también cambia, en coherencia con la propia solución de Martin
         y con el cierre estratégico.
   \item \textbf{Contextos con un modelo mínimo compartido.} \texttt{Rides} y
-        \texttt{Kittens} se presentan como Contextos Delimitados en su modelo propio que
+        \texttt{Kittens} se presentan como Contextos Delimitados en su modelo propio, que
         comparten, a propósito, identificadores y abstracciones del núcleo.
   \item \textbf{Regla del cliente alérgico.} Se usa para mostrar un caso que en apariencia
         obligaría a modificar \texttt{Rides} y que, con un punto de extensión en el núcleo
