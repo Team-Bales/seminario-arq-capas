@@ -1,17 +1,13 @@
 % =============================================================================
 % referencias.bib — P3: DDD y Bounded Context (sistema de seguros)
 % =============================================================================
-% Solo fuentes que NO están en core.bib. P3 usa además estas claves de core.bib,
-% que no se duplican aquí: martin2017, cockburn2005, delatorre2010,
-% richardsford2020.
+% P3 no necesita fuentes nuevas: todas las claves que usa están en core.bib
+% (martin2017, cockburn2005, delatorre2010, richardsford2020, palermo2008).
 % Evans (2003) se cita de forma indirecta («como se citó en Richards & Ford,
-% 2020») y por eso no figura en ningún .bib.
+% 2020»).
+%
+% IMPORTANTE: no añadir una «plantilla comentada» con arroba. En un .bib el
+% signo de porcentaje NO comenta: Biber lee cualquier arroba como inicio de una
+% entrada y, si está incompleta, falla y deja la bibliografía entera vacía.
+% Un .bib sin entradas no da ningún error (ver el comentario en el issue #13).
 % =============================================================================
-
-@online{palermo2008,
-  author   = {Palermo, Jeffrey},
-  title    = {The onion architecture: Part 1},
-  date     = {2008-07-29},
-  url      = {https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/},
-  urldate  = {2026-10-19},
-}

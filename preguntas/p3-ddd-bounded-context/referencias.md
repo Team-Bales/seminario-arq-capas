@@ -1,6 +1,6 @@
 # Referencias — P3: DDD y Bounded Context — Sistema de Seguros
 
-Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista aparece citada en la respuesta, y viceversa. Las entradas BibTeX están en [`referencias.bib`](referencias.bib).
+Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista aparece citada en la respuesta, y viceversa. Todas las entradas BibTeX están en `core.bib` (también `palermo2008`); el `referencias.bib` de esta carpeta no declara entradas.
 
 ## Fuentes primarias
 
@@ -22,4 +22,4 @@ Fuentes citadas en [`solucion.tex`](solucion.tex). Toda fuente de esta lista apa
 
 ## Fuentes citadas indirectamente
 
-- Evans, E. (2003). *Domain-Driven Design*. Citado "como se citó en Richards & Ford (2020, cap. 7)". No consultado directamente; por eso no figura en `referencias.bib`.
+- Evans, E. (2003). *Domain-Driven Design*. Citado "como se citó en Richards & Ford (2020, cap. 7)". No consultado directamente; aunque `core.bib` incluye `evans2003`, se cita a través de Richards & Ford.

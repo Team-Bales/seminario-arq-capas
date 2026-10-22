@@ -4,15 +4,18 @@
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Prohibido: \documentclass, \begin{document}, \usepackage, preámbulo.
 % Fuente de trabajo: solucion.md (misma carpeta).
-% Citas: biblatex (APA) con páginas impresas; Richards & Ford (2020), Cockburn
-% (2005) y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
-% Claves de core.bib usadas: martin2017, cockburn2005, delatorre2010,
-% richardsford2020. Clave propia (referencias.bib): palermo2008.
-% Paquetes que debe cargar el preámbulo común: xcolor, tikz, listings,
-% booktabs, tabularx, array, enumitem (con babel spanish + es-nolists).
+% Estructura del issue #5: \chapter con el título oficial + 4 \section (una por
+% apartado del enunciado) + Notas de diseño + Notas de investigación.
+% Citas: biblatex con páginas impresas; Richards & Ford (2020), Cockburn (2005)
+% y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
+% Claves usadas, todas de core.bib: martin2017, cockburn2005, delatorre2010,
+% richardsford2020, palermo2008.
+% Paquetes: los del preámbulo del #13 (booktabs, enumitem, tikz) más listings,
+% pedido para preamble.tex en el issue #13.
 % =============================================================================
 
-% --- Definiciones locales (no son \usepackage; solo afectan a este capítulo) ---
+% --- Definiciones auxiliares (no son \usepackage). Son globales; son idénticas a
+% las de P5, así que no entran en conflicto. ---
 \providecolor{azul}{HTML}{1F4E79}
 \providecolor{naranja}{HTML}{C55A11}
 \providecolor{gris}{HTML}{595959}
@@ -30,11 +33,10 @@
 }
 \renewcommand{\lstlistingname}{Listado}
 
-\chapter{P3: Aplicación de DDD y Bounded Context en un Dominio Complejo}
+\chapter{P3: DDD y Bounded Context: Sistema de Seguros de Automóviles}
 \label{sec:p3}
-
-\section{Planteamiento}
-\label{sec:p3-planteamiento}
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em
 
 Una empresa de seguros necesita un sistema para gestionar pólizas de automóviles que
 interactúe con el departamento de siniestros, con el sistema de facturación de primas y
@@ -94,7 +96,7 @@ la aseguradora se aplican cuatro criterios:
 \end{enumerate}
 
 Con estos criterios se proponen cuatro contextos delimitados, resumidos en la
-Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de «Póliza».
+\tablename~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de «Póliza».
 
 \begin{table}[htbp]
   \centering
@@ -102,33 +104,35 @@ Tabla~\ref{tab:p3-contextos}. Cada uno tiene su propio significado de «Póliza�
   \label{tab:p3-contextos}
   \small
   \renewcommand{\arraystretch}{1.25}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}
-                                  >{\raggedright\arraybackslash}X
-                                  >{\raggedright\arraybackslash}X
-                                  >{\raggedright\arraybackslash}X@{}}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{0.18\linewidth}p{0.25\linewidth}p{0.21\linewidth}p{0.26\linewidth}@{}}
     \toprule
     \textbf{Contexto} & \textbf{Responsabilidad} & \textbf{Lenguaje propio}
       & \textbf{Qué es «Póliza»} \\
     \midrule
-    Suscripción y Pólizas (actuarios)
-      & Diseñar, emitir, modificar, renovar, suspender y cancelar pólizas
-      & cobertura, cláusula, riesgo, prima técnica, vigencia
-      & Contrato con coberturas y cláusulas; raíz del agregado principal \\
-    Facturación de Primas
-      & Emitir recibos, cobrar primas y gestionar impagos
-      & recibo, plan de pagos, vencimiento, impago
-      & Fuente de ingresos: cuenta de cobro asociada a un número de póliza \\
-    Siniestros
-      & Abrir y tramitar expedientes y decidir indemnizaciones
-      & expediente, declaración, reserva, indemnización
-      & Cobertura aplicable en la fecha del siniestro \\
-    Peritaje (ajustadores)
-      & Recibir solicitudes de peritaje, asignar ajustadores, evaluar daños en el lugar
-        del accidente y emitir el informe pericial
-      & inspección, daño, valoración, informe pericial
-      & Número de póliza usado como mera referencia del vehículo asegurado \\
+    \raggedright Suscripción y Pólizas (actuarios)
+      & \raggedright Diseñar, emitir, modificar, renovar, suspender y cancelar pólizas
+      & \raggedright cobertura, cláusula, riesgo, prima técnica, vigencia
+      & \raggedright Contrato con coberturas y cláusulas; raíz del agregado principal
+      \tabularnewline
+    \raggedright Facturación de Primas
+      & \raggedright Emitir recibos, cobrar primas y gestionar impagos
+      & \raggedright recibo, plan de pagos, vencimiento, impago
+      & \raggedright Fuente de ingresos: cuenta de cobro asociada a un número de póliza
+      \tabularnewline
+    \raggedright Siniestros
+      & \raggedright Abrir y tramitar expedientes y decidir indemnizaciones
+      & \raggedright expediente, declaración, reserva, indemnización
+      & \raggedright Cobertura aplicable en la fecha del siniestro
+      \tabularnewline
+    \raggedright Peritaje (ajustadores)
+      & \raggedright Recibir solicitudes de peritaje, asignar ajustadores, evaluar daños en
+        el lugar del accidente y emitir el informe pericial
+      & \raggedright inspección, daño, valoración, informe pericial
+      & \raggedright Número de póliza usado como mera referencia del vehículo asegurado
+      \tabularnewline
     \bottomrule
-  \end{tabularx}
+  \end{tabular}
 \end{table}
 
 \paragraph{Decisión de diseño: Peritaje como contexto propio.}
@@ -154,7 +158,7 @@ con alta cohesión y comunicadas mediante interfaces \parencite[71--72]{delatorr
 contexto delimitado va un paso más allá. No es un módulo de un modelo compartido: es un
 modelo propio, con sus propios datos.
 
-\section{Cómo evitar la contaminación del modelo de Póliza}
+\section{Protección del modelo de «Póliza»}
 \label{sec:p3-contaminacion}
 
 El aislamiento del modelo se consigue combinando cinco mecanismos.
@@ -267,7 +271,7 @@ de un intermediario ligero mediante publicación y suscripción
 mediador global, respeta la filosofía del contexto delimitado
 \parencite[cap.~17]{richardsford2020}. La difusión de eventos es probablemente el mayor
 grado de desacoplamiento posible, porque el productor desconoce quién recibe el mensaje y
-qué hace con él \parencite[cap.~14]{richardsford2020}. La Tabla~\ref{tab:p3-eventos}
+qué hace con él \parencite[cap.~14]{richardsford2020}. La \tablename~\ref{tab:p3-eventos}
 detalla los flujos principales. No pretende ser exhaustiva: otros casos, como la
 regularización de un pago o la cancelación de un peritaje, seguirían el mismo patrón.
 
@@ -277,30 +281,35 @@ regularización de un pago o la cancelación de un peritaje, seguirían el mismo
   \label{tab:p3-eventos}
   \small
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm}
-                                  >{\raggedright\arraybackslash}p{2.3cm}
-                                  >{\raggedright\arraybackslash}p{2.3cm}
-                                  >{\raggedright\arraybackslash}X@{}}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{0.25\linewidth}p{0.15\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
     \toprule
     \textbf{Mensaje} & \textbf{Publica} & \textbf{Consume} & \textbf{Reacción del consumidor} \\
     \midrule
-    PólizaEmitida, PólizaRenovada, PólizaModificada, PólizaSuspendida, PólizaCancelada
-      & Suscripción & Facturación
-      & Crea, ajusta, suspende o cierra el plan de cobro; el evento incluye el número de
-        póliza, la prima y el calendario de pagos \\
-    PagoVencido & Facturación & Suscripción
-      & Decide, según las cláusulas del contrato, si suspende la póliza \\
-    PeritajeSolicitado & Siniestros & Peritaje
-      & Asigna un ajustador; el evento incluye la referencia de póliza y los datos del
-        vehículo y del lugar recogidos en la declaración del siniestro \\
-    PeritajeCompletado & Peritaje & Siniestros & Incorpora la valoración de daños al expediente \\
-    SiniestroLiquidado & Siniestros & Suscripción
-      & Actualiza el historial de siniestralidad que se usa en las renovaciones \\
+    \raggedright PólizaEmitida, PólizaRenovada, PólizaModificada, PólizaSuspendida,
+      PólizaCancelada
+      & \raggedright Suscripción & \raggedright Facturación
+      & \raggedright Crea, ajusta, suspende o cierra el plan de cobro; el evento incluye el
+        número de póliza, la prima y el calendario de pagos \tabularnewline
+    \raggedright PagoVencido & \raggedright Facturación & \raggedright Suscripción
+      & \raggedright Decide, según las cláusulas del contrato, si suspende la póliza
+      \tabularnewline
+    \raggedright PeritajeSolicitado & \raggedright Siniestros & \raggedright Peritaje
+      & \raggedright Asigna un ajustador; el evento incluye la referencia de póliza y los
+        datos del vehículo y del lugar recogidos en la declaración del siniestro
+      \tabularnewline
+    \raggedright PeritajeCompletado & \raggedright Peritaje & \raggedright Siniestros
+      & \raggedright Incorpora la valoración de daños al expediente \tabularnewline
+    \raggedright SiniestroLiquidado & \raggedright Siniestros & \raggedright Suscripción
+      & \raggedright Actualiza el historial de siniestralidad que se usa en las renovaciones
+      \tabularnewline
     \addlinespace
-    ConsultarCobertura (síncrona) & Siniestros pregunta & Suscripción responde
-      & Verifica la cobertura vigente en la fecha del siniestro al abrir el expediente \\
+    \raggedright ConsultarCobertura (síncrona) & \raggedright Siniestros pregunta
+      & \raggedright Suscripción responde
+      & \raggedright Verifica la cobertura vigente en la fecha del siniestro al abrir el
+        expediente \tabularnewline
     \bottomrule
-  \end{tabularx}
+  \end{tabular}
 \end{table}
 
 Dos decisiones de la tabla merecen justificación:
@@ -351,7 +360,7 @@ un formato publicado.
 Nunca transportan objetos del modelo interno: cada consumidor traduce el mensaje a su
 propio modelo (mecanismo M5 de la Sección~\ref{sec:p3-contaminacion}).
 
-\section{Relación con una arquitectura orientada al dominio y el Adaptador de Servicio}
+\section{Relación con Onion/Clean y el Adaptador de Servicio}
 \label{sec:p3-arquitectura}
 
 Los contextos delimitados organizan el sistema a gran escala. Internamente, cada contexto
@@ -517,7 +526,7 @@ Siniestros, y aporta tres beneficios:
 Los consumidores de eventos cumplen el mismo papel de traducción en sentido de entrada:
 convierten cada mensaje publicado en una llamada a un caso de uso del contexto receptor.
 
-\section{Valoración crítica}
+\subsection*{Valoración crítica}
 \label{sec:p3-valoracion}
 
 La solución reúne las ventajas que justifican DDD en un dominio con reglas de negocio
@@ -580,3 +589,4 @@ Servicios externos, aporta más valor que coste.
 
 \section*{Notas de investigación}
 \input{investigacion/p3-bounded-context/notas}
+\endgroup
