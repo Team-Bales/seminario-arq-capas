@@ -26,11 +26,12 @@ descomposiciones funcionales son muy vulnerables a las preocupaciones transversa
 La salida que propone no es crear más servicios, sino aplicar SOLID dentro de ellos
 \parencite[244]{martin2017}. La lógica genérica queda en clases base abstractas; lo
 específico de los viajes se extrae a un componente \texttt{Rides} y la nueva funcionalidad
-va a un componente \texttt{Kittens}. Ambos sobrescriben esas abstracciones mediante
-\emph{Template Method} o \emph{Strategy}, respetan la Regla de Dependencia y los crean
-factorías controladas por la UI. Solo cambia \texttt{TaxiUI}; el resto se extiende
-añadiendo un componente que se carga en tiempo de ejecución, lo que es el Principio
-Abierto/Cerrado aplicado a componentes \parencite[245--246]{martin2017}. La lección
+va a un componente \texttt{Kittens}. Ambos extienden esas abstracciones mediante
+\emph{Template Method} o \emph{Strategy}, respetan la Regla de Dependencia y son creados
+por factorías controladas por la interfaz de usuario. Solo cambia \texttt{TaxiUI}; el
+resto se extiende añadiendo un componente que se carga en tiempo de ejecución
+\parencite[244]{martin2017}, lo que es el Principio Abierto/Cerrado aplicado a
+componentes \parencite[246]{martin2017}. La lección
 arquitectónica: las fronteras no pasan \emph{entre} los servicios, sino \emph{a través} de
 ellos \parencite[246--247]{martin2017}.
 
