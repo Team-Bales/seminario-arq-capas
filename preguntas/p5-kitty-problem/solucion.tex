@@ -37,6 +37,8 @@
 \label{sec:p5}
 % Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
 \begingroup\emergencystretch=3em
+\section{¿Por qué dividir por verbos o entidades provocó el \emph{Kitty Problem}?}
+\label{sec:p5-causas}
 
 El enunciado presenta el \emph{Kitty Problem}: un requisito transversal, la entrega de
 gatitos, afecta a varios servicios ya existentes de un sistema de taxis (\texttt{TaxiUI},
@@ -58,9 +60,6 @@ pregunta pide:
         \texttt{Rides} se añadan como \emph{plugins}, explicando cómo respeta el Principio
         de Abierto/Cerrado (OCP) y qué papel desempeñan los adaptadores.
 \end{enumerate}
-
-\section{¿Por qué dividir por verbos o entidades provocó el \emph{Kitty Problem}?}
-\label{sec:p5-causas}
 
 Martin parte de un agregador de taxis, ya presentado en el capítulo sobre el Principio de
 Sustitución de Liskov, que conoce a muchos proveedores de taxis de una ciudad y permite a
@@ -119,7 +118,6 @@ no pueden desarrollarse, desplegarse ni mantenerse de forma independiente
            \textcite[242--243]{martin2017}.}
   \label{fig:p5-problema}
 \end{figure}
-
 
 \paragraph{La descomposición funcional es vulnerable a los cambios transversales.}
 Cada servicio implementa un paso del flujo: encontrar, seleccionar, despachar. Un
