@@ -16,7 +16,7 @@ La respuesta está redactada en **LaTeX**, como fragmento puro del documento fin
 | [`referencias.bib`](referencias.bib) | Sin entradas propias: todas las fuentes están en `core.bib` o en el `.bib` de P3 |
 
 Requisitos para el preámbulo común:
-- **Paquetes:** `xcolor`, `tikz`, `listings`, `booktabs`, `tabularx`, `array` y `enumitem`.
+- **Paquetes:** `xcolor`, `tikz`, `listings` y `enumitem`.
 - **Idioma:** babel en español con `es-nolists`.
 - **Citas:** biblatex (APA).
 
@@ -27,7 +27,7 @@ Requisitos para el preámbulo común:
 - **Fuente del Kitty Problem.** El enunciado lo atribuye a Richards & Ford (2020), pero en la bibliografía consultada aparece en Martin (2017, cap. 27). Se aclara en una nota al pie.
 - **"Un solo componente", con matices.** En la solución de Martin, `TaxiUI` también cambia (p. 244); se reconoce explícitamente.
 - **Regla del cliente alérgico.** Es un ejemplo propio: muestra que, con un punto de extensión en el núcleo, `Rides` no se modifica.
-- **Adaptadores.** El capítulo 27 no los menciona. Su papel se fundamenta en Martin (2017, p. 205) y Richards (2015, p. 23), y se presenta como interpretación propia.
+- **Adaptadores.** El capítulo 27 no los menciona. Su papel se fundamenta en Cockburn (2005), Martin (2017, p. 205), De la Torre et al. (2010, pp. 58, 108) y Richards (2015, p. 23), y se presenta como interpretación propia.
 
 ---
 
