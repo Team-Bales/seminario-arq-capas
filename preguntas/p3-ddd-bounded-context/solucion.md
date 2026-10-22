@@ -12,6 +12,8 @@
 
 ## Respuesta
 
+### División del sistema en contextos delimitados
+
 Una empresa de seguros necesita un sistema para gestionar pólizas de automóviles que interactúe con el departamento de siniestros, con el sistema de facturación de primas y con la aplicación que usan los ajustadores para evaluar daños en el lugar del accidente. Cada área usa su propia terminología: para un actuario la póliza es un contrato con cláusulas; para facturación, una fuente de ingresos; para un ajustador, un número de referencia. La pregunta pide explicar:
 
 - (a) cómo dividir el sistema en contextos delimitados (*bounded contexts*);
@@ -20,8 +22,6 @@ Una empresa de seguros necesita un sistema para gestionar pólizas de automóvil
 - (d) cómo se relaciona la solución con una arquitectura orientada al dominio (Onion o Clean) y con el «Adaptador de Servicio» de la Guía de Arquitectura N-Capas.
 
 La solución ingenua sería construir un único modelo de «Póliza» compartido por todas las áreas. Ese modelo acumularía cláusulas, planes de cobro y datos de peritaje, y cualquier cambio pedido por un área afectaría a todas las demás. Domain-Driven Design (DDD) propone lo contrario: expresar el modelo en el lenguaje de los expertos del negocio, el llamado *Lenguaje Ubicuo*, y está indicado precisamente para aplicaciones empresariales complejas (De la Torre et al., 2010, p. 21). Desde esta perspectiva, que «póliza» signifique tres cosas distintas no es un defecto que haya que corregir, sino la señal de que existen varios modelos legítimos.
-
-### División del sistema en contextos delimitados
 
 El contexto delimitado es un concepto propuesto por Evans (como se citó en Richards y Ford, 2020, cap. 7): todo lo relativo a un dominio es visible dentro del contexto y opaco fuera de él. En vez de crear una única clase compartida por toda la organización, cada dominio define la suya y las diferencias se concilian en los puntos de integración (Richards y Ford, 2020, cap. 7). Para trazar las fronteras en el caso de la aseguradora se aplican cuatro criterios:
 
