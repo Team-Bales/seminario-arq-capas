@@ -2,14 +2,19 @@
 % investigacion/p3-bounded-context/notas.tex — INV-P3 (issue #6)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye desde preguntas/p3-ddd-bounded-context/solucion.tex
-% mediante \input{investigacion/p3-bounded-context/notas}, justo después de
-% \section*{Notas de investigación}; por eso aquí se usan \subsection*.
+% mediante \input{investigacion/p3-bounded-context/notas}.
+% Estructura del issue #6: \section*{Notas de investigación: …} + Síntesis +
+% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
 % Fuente de trabajo: notas.md (misma carpeta).
 % Citas: páginas impresas; Richards & Ford (2020), Cockburn (2005) y
 % Palermo (2008) no tienen paginación y se citan por capítulo/sección.
 % ============================================================
 
-\subsection*{Síntesis}
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em
+\section*{Notas de investigación: Bounded Context, Ubiquitous Language y Context Map}
+
+\section{Síntesis}
 
 El \emph{bounded context} es un concepto de Domain-Driven Design que, dentro de la
 bibliografía del seminario, presentan Richards y Ford: todo lo relativo a un dominio es
@@ -30,59 +35,104 @@ Dentro de cada contexto, el modelo se organiza en agregados, con una entidad ra�
 único punto de entrada \parencite[172]{delatorre2010}. Para comunicar los contextos,
 Richards y Ford distinguen la comunicación síncrona de la asíncrona, recomiendan la
 coreografía y desaconsejan las transacciones entre servicios
-\parencite[cap.~17]{richardsford2020}. Para aislar cada contexto de lo externo, la Guía
-describe los Agentes de Servicios externos \parencite[58, 108, 155--156]{delatorre2010},
-que encajan con los adaptadores de \textcite{cockburn2005}, con la capa de adaptadores de
-interfaz \parencite[205]{martin2017} y con el núcleo de dominio de la Arquitectura Onion
+\parencite[cap.~17]{richardsford2020}. Para aislar cada contexto de lo externo, la
+\emph{Guía de Arquitectura N-Capas} describe los agentes de servicios externos
+\parencite[58, 108, 155--156]{delatorre2010}, que encajan con los adaptadores de
+\textcite{cockburn2005}, con la capa de adaptadores de interfaz
+\parencite[205]{martin2017} y con el núcleo de dominio de la Arquitectura Onion
 \parencite{palermo2008}.
 
-\subsection*{Conceptos clave}
+\section{Conceptos clave}
 
-\begin{description}
-  \item[Bounded context.] Lo relativo a un dominio es visible dentro del contexto y opaco
-    fuera; las diferencias se concilian en los puntos de integración. Concepto de Evans,
-    como se citó en \textcite[cap.~7]{richardsford2020}.
-  \item[Partición por dominio.] Los componentes de nivel superior se organizan por dominio
-    o flujo de trabajo y no por capacidad técnica \parencite[cap.~8]{richardsford2020}.
-  \item[Lenguaje Ubicuo.] Lenguaje de los expertos en el que se expresa el modelo de
-    dominio \parencite[21, 42, 72]{delatorre2010}.
-  \item[Duplicación verdadera vs.\ accidental.] Solo es verdadera si todo cambio en una
-    copia exige el mismo cambio en las demás \parencite[154--155]{martin2017}.
-  \item[Módulos.] Partición vertical del modelo por áreas de negocio, con alta cohesión y
-    comunicación por interfaces \parencite[71--72]{delatorre2010}. No equivalen a un
-    bounded context: parten \emph{un} modelo, no separan modelos distintos.
-  \item[Agregado.] Conjunto de objetos tratado como unidad frente a los cambios de datos,
-    con una raíz como único punto de entrada \parencite[172--174]{delatorre2010}.
-  \item[Agentes de Servicios externos.] Gestionan la comunicación con servicios externos,
-    mapean formatos de datos y aíslan sus particularidades para que el servicio pueda
-    sustituirse \parencite[58, 108, 155--156]{delatorre2010}.
-  \item[Capa de Aplicación.] Capa delgada que coordina tareas sin lógica de negocio
-    \parencite[247]{delatorre2010}.
-  \item[Comunicación entre servicios.] Síncrona o asíncrona; coreografía frente a
-    orquestación; sin transacciones distribuidas salvo sagas
-    \parencite[cap.~17]{richardsford2020}. Eventos, topología \textit{broker} y
-    petición--respuesta \parencite[cap.~14]{richardsford2020}.
-  \item[Puertos y adaptadores.] El adaptador traduce entre la tecnología externa y el
-    puerto; la aplicación desconoce lo que hay al otro lado
-    \parencite[«Intent»]{cockburn2005}.
-  \item[Regla de Dependencia.] Las dependencias del código fuente solo apuntan hacia
-    adentro \parencite[203]{martin2017}.
-  \item[Núcleo de Onion.] Dominio en el centro, interfaces en el núcleo e implementaciones
-    en los bordes \parencite{palermo2008}.
-\end{description}
+\begin{table}[htbp]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.21\linewidth}p{0.47\linewidth}p{0.24\linewidth}@{}}
+    \toprule
+    \textbf{Concepto} & \textbf{Definición} & \textbf{Fuente} \\
+    \midrule
+    \raggedright Bounded context
+      & \raggedright Lo relativo a un dominio es visible dentro del contexto y opaco fuera; las
+        diferencias se concilian en los puntos de integración (concepto de Evans)
+      & \raggedright \textcite[cap.~7]{richardsford2020} \tabularnewline
+    \raggedright Partición por dominio
+      & \raggedright Componentes de nivel superior organizados por dominio o flujo, no por capacidad
+        técnica
+      & \raggedright \textcite[cap.~8]{richardsford2020} \tabularnewline
+    \raggedright Lenguaje Ubicuo
+      & \raggedright Lenguaje de los expertos en el que se expresa el modelo de dominio
+      & \raggedright \textcite[21, 42, 72]{delatorre2010} \tabularnewline
+    \raggedright Duplicación accidental
+      & \raggedright Copias que evolucionan por razones distintas; unificarlas acopla
+      & \raggedright \textcite[154--155]{martin2017} \tabularnewline
+    \raggedright Módulos
+      & \raggedright Partición vertical del modelo por áreas de negocio, comunicada por interfaces; no
+        equivalen a un bounded context
+      & \raggedright \textcite[71--72]{delatorre2010} \tabularnewline
+    \raggedright Agregado
+      & \raggedright Unidad frente a los cambios de datos, con una raíz como único punto de entrada
+      & \raggedright \textcite[172--174]{delatorre2010} \tabularnewline
+    \raggedright Agentes de servicios externos
+      & \raggedright Gestionan la comunicación con servicios externos, mapean formatos y permiten
+        sustituir el servicio
+      & \raggedright \textcite[58, 108, 155--156]{delatorre2010} \tabularnewline
+    \raggedright Capa de Aplicación
+      & \raggedright Capa delgada que coordina tareas, sin lógica de negocio
+      & \raggedright \textcite[247]{delatorre2010} \tabularnewline
+    \raggedright Comunicación entre servicios
+      & \raggedright Síncrona o asíncrona; coreografía frente a orquestación; sin transacciones
+        distribuidas salvo sagas
+      & \raggedright \textcite[caps.~14 y 17]{richardsford2020} \tabularnewline
+    \raggedright Puertos y adaptadores
+      & \raggedright El adaptador traduce entre la tecnología externa y el puerto
+      & \raggedright \textcite[«Intent»]{cockburn2005} \tabularnewline
+    \raggedright Regla de Dependencia
+      & \raggedright Las dependencias del código fuente solo apuntan hacia adentro
+      & \raggedright \textcite[203]{martin2017} \tabularnewline
+    \raggedright Núcleo de Onion
+      & \raggedright Dominio en el centro, interfaces en el núcleo e implementaciones en los bordes
+      & \raggedright \textcite{palermo2008} \tabularnewline
+    \bottomrule
+  \end{tabular}
+  \caption{Conceptos clave de la investigación INV-P3.}
+  \label{tab:inv-p3-conceptos}
+\end{table}
 
-\subsection*{Observaciones para la respuesta}
+\section{Puntos de conexión con las preguntas}
 
 \begin{itemize}
-  \item Los patrones del \textit{Context Map} de Evans (\textit{Anti-Corruption Layer},
-        \textit{Shared Kernel}, \textit{Customer/Supplier}, \textit{Open Host Service})
-        no aparecen en la bibliografía orientada. El aislamiento entre contextos se
-        fundamenta con los Agentes de Servicios externos y los adaptadores.
-  \item La Guía (borrador de 2010) no usa el término \emph{bounded context}. El
-        «Adaptador de Servicio» del enunciado corresponde a sus «Agentes de Servicios
-        externos». La Guía usa además «Agente de Servicio» para un componente de la capa
-        de presentación \parencite[269]{delatorre2010}, que es otro concepto.
-  \item Los Eventos del Dominio de la Guía \parencite[195--196]{delatorre2010} articulan
-        reglas \emph{dentro} de un dominio; la comunicación asíncrona entre contextos se
-        fundamenta con \textcite[caps.~14 y 17]{richardsford2020}.
+  \item \textbf{P3, división en contextos:} el Lenguaje Ubicuo como criterio y la
+        partición por dominio; los criterios de granularidad de
+        \textcite[cap.~17]{richardsford2020}.
+  \item \textbf{P3, protección del modelo de «Póliza»:} un modelo por contexto, la
+        duplicación accidental, los agregados y la traducción en la frontera mediante
+        agentes de servicios externos o adaptadores.
+  \item \textbf{P3, comunicación desacoplada:} eventos asíncronos con coreografía y sin
+        transacciones distribuidas \parencite[caps.~14 y 17]{richardsford2020}.
+  \item \textbf{P3, Onion/Clean y Adaptador de Servicio:} dominio en el centro con la
+        Regla de Dependencia; el «Adaptador de Servicio» del enunciado corresponde a los
+        agentes de servicios externos de la Guía.
+  \item \textbf{P5:} el bounded context y la granularidad de Richards y Ford también
+        fundamentan la respuesta al Kitty Problem.
 \end{itemize}
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Patrones del Context Map.} \textit{Anti-Corruption Layer},
+        \textit{Shared Kernel}, \textit{Customer/Supplier} y \textit{Open Host Service}
+        no aparecen en ninguna fuente de la bibliografía orientada. El aislamiento entre
+        contextos se fundamenta con los agentes de servicios externos y los adaptadores.
+  \item \textbf{La Guía no usa el término \emph{bounded context}.} Lo más cercano son
+        los Módulos, que parten \emph{un} modelo en lugar de separar modelos distintos.
+  \item \textbf{«Adaptador de Servicio» = agentes de servicios externos.} La Guía usa
+        además «Agente de Servicio» para un componente de la capa de presentación
+        \parencite[269]{delatorre2010}, que es otro concepto.
+  \item \textbf{Eventos del Dominio.} En la Guía articulan reglas \emph{dentro} de un
+        dominio \parencite[195--196]{delatorre2010}; la comunicación asíncrona entre
+        contextos se fundamenta con \textcite[caps.~14 y 17]{richardsford2020}.
+  \item \textbf{Cita de Evans.} El enunciado lo nombra, pero no se consultó su libro: se
+        cita de forma indirecta, a través de \textcite[cap.~7]{richardsford2020}.
+\end{itemize}
+\endgroup
