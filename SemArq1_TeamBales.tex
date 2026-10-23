@@ -1,0 +1,71 @@
+% ============================================================
+% SemArq1_TeamBales.tex — Documento principal
+% Clase: report
+%
+% Orden exigido por la orientación del seminario:
+%   portada → índice → introducción → preguntas P1-P6 → conclusiones
+%   → referencias bibliográficas → Declaración de Uso de la IA
+%   (la declaración va SIEMPRE después de la bibliografía).
+%
+% Cada pregunta se incluye solo si su solucion.tex ya está en el
+% repositorio: así main compila aunque falten capítulos, y cada PR de
+% pregunta los añade sin tocar este archivo. \pregunta fija además el
+% número del capítulo, para que P4 sea el capítulo 4 aunque falten los
+% anteriores. Se usa \input (no \include) para que los capítulos vayan
+% seguidos, sin salto de página.
+% ============================================================
+
+\documentclass[12pt]{report}
+
+\input{preamble}
+\input{portada}
+
+% \pregunta{número}{ruta sin .tex}
+\newcommand{\pregunta}[2]{%
+  \IfFileExists{#2.tex}{\setcounter{chapter}{\numexpr#1-1\relax}\input{#2}}{}%
+}
+
+% --- Notas de investigación: OCULTAS momentáneamente ---
+% Para volver a mostrarlas, cambiar \notasinvestigacionfalse por \notasinvestigaciontrue.
+% Mientras están ocultas, se omite el \input de investigacion/... y el título
+% «Notas de investigación» que cada solucion.tex pone antes de ese \input.
+\newif\ifnotasinvestigacion
+\notasinvestigacionfalse
+
+\begin{document}
+
+\ifnotasinvestigacion\else
+  \makeatletter
+  \let\inputoriginal\input
+  \renewcommand{\input}[1]{\in@{investigacion/}{#1}\ifin@\else\inputoriginal{#1}\fi}
+  \let\seccionoriginal\section
+  \def\notasinvtitulo{Notas de investigación}
+  \newcommand{\seccionestrella}[1]{\def\tituloactual{#1}%
+    \ifx\tituloactual\notasinvtitulo\else\seccionoriginal*{#1}\fi}
+  \renewcommand{\section}{\@ifstar{\seccionestrella}{\seccionoriginal}}
+  \makeatother
+\fi
+
+% La portada no lleva número; la numeración (arábiga) empieza en 1 con el índice.
+\portada
+\setcounter{page}{1}
+\tableofcontents
+
+\input{introduccion}
+
+% Capítulos de contenido (P1..P6). Cada solucion.tex incluye, al final,
+% el \input de su notas.tex de investigación.
+\pregunta{1}{preguntas/p1-trade-offs/solucion}
+\pregunta{2}{preguntas/p2-simetria-hexagono/solucion}
+\pregunta{3}{preguntas/p3-ddd-bounded-context/solucion}
+\pregunta{4}{preguntas/p4-inversion-dependencias/solucion}
+\pregunta{5}{preguntas/p5-kitty-problem/solucion}
+\pregunta{6}{preguntas/p6-ncapas-calidad/solucion}
+
+\input{conclusiones}
+
+\printbibliography[heading=bibintoc, title={Referencias bibliográficas}, env=bibliography]
+
+\input{declaracion-ia}
+
+\end{document}
