@@ -1,6 +1,6 @@
 # INV-P4: DIP e interfaces en Clean Architecture
 
-**Integrante:** Enrique Aguilar
+**Integrante:** Enrique A Gonzalez Moreira
 **Issue:** #8
 **Cubre preguntas:** P4
 

@@ -1,0 +1,160 @@
+% =============================================================================
+% investigacion/p4-dip-interfaces/notas.tex — INV-P4 (issue #8)
+% Integrante: Enrique A Gonzalez Moreira
+% Fragmento puro: se incluye desde preguntas/p4-inversion-dependencias/solucion.tex
+% mediante \input{investigacion/p4-dip-interfaces/notas} (ya presente en ese
+% archivo: sin este fragmento, SemArq1_TeamBales.tex no compila).
+% Estructura del issue #8: \section*{Notas de investigación: …} + Síntesis +
+% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
+% Fuente de trabajo: notas.md (misma carpeta).
+% Citas: páginas impresas de Martin (2017); Cockburn (2005) y Palermo (2008) no
+% tienen paginación y se citan por sección o parte. Todas las claves están en
+% core.bib (martin2017, cockburn2005, palermo2008): fuentes.bib no declara nada.
+% Comillas: se usan comillas tipográficas literales, no \enquote, para no
+% depender de csquotes (no está en la lista de paquetes de preamble.tex, #13).
+% =============================================================================
+
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em \hbadness=2000
+\section*{Notas de investigación: DIP, Inversión de Dependencias y diseño de interfaces en Clean Architecture}
+
+\section{Síntesis}
+
+El Principio de Inversión de Dependencias (DIP) sostiene que los sistemas más flexibles son
+aquellos en los que las dependencias del código fuente se refieren solo a abstracciones, no a
+concreciones \parencite[87]{martin2017}. La consecuencia práctica es que una política de alto
+nivel —una regla de negocio— no debe nombrar un detalle de bajo nivel: ni una base de datos, ni
+un servicio externo, ni una librería de transporte. Ambos, política y detalle, dependen de una
+abstracción declarada en el núcleo. Martin añade el criterio que convierte el principio en
+decisión de diseño: toda modificación de una interfaz abstracta obliga a modificar sus
+implementaciones, pero no al contrario, de modo que las interfaces son menos volátiles que las
+implementaciones \parencite[88]{martin2017}; de ahí las reglas operativas de no referirse a
+clases concretas volátiles, no sobreescribir funciones concretas y recurrir a factorías
+abstractas para la creación de objetos \parencite[89]{martin2017}.
+
+La Regla de Dependencia formaliza el principio a escala arquitectónica: las dependencias del
+código fuente deben apuntar solo hacia adentro, hacia políticas de mayor nivel, y nada de un
+círculo interno puede conocer nada de un círculo externo \parencite[203]{martin2017}. Martin
+presenta esa regla como denominador común de un conjunto de arquitecturas —Hexagonal de
+Cockburn, DCI, BCE— que persiguen la misma separación de intereses y producen sistemas
+independientes de frameworks, de la interfaz de usuario, de la base de datos y de cualquier
+agencia externa, y con reglas de negocio probables sin ninguno de esos elementos
+\parencite[202]{martin2017}. En la Hexagonal, el núcleo declara los \emph{puertos} y la
+tecnología aporta los \emph{adaptadores} que los implementan \parencite{cockburn2005}; en la
+Onion, el Modelo de Dominio ocupa el centro y las interfaces de repositorio viven en el núcleo
+mientras el comportamiento que toca la base de datos queda fuera \parencite{palermo2008}.
+
+El mecanismo concreto es siempre el mismo: el detalle implementa la abstracción que el núcleo
+declara, y la traducción entre el contrato del núcleo y la tecnología externa ocurre en la capa
+de adaptadores de interfaz \parencite[205]{martin2017}. Conviene no confundirlo con la inversión
+del flujo de control: el núcleo sigue llamando a la validación o a la consulta; lo que se
+invierte es la dirección de la dependencia del código fuente, que en el límite cruzado pasa a
+apuntar desde el detalle hacia la abstracción \parencite[87, 91]{martin2017}. Ese es el punto de
+apoyo de la testabilidad: con el puerto en el núcleo, la prueba sustituye el adaptador real por
+un doble controlado y ejercita la regla de negocio sin red, sin servidor y sin base de datos
+\parencite[202]{martin2017}.
+
+\section{Conceptos clave}
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.22\linewidth}p{0.46\linewidth}p{0.24\linewidth}@{}}
+    \toprule
+    \textbf{Concepto} & \textbf{Definición} & \textbf{Fuente} \\
+    \midrule
+    \raggedright Principio de Inversión de Dependencias (DIP)
+      & \raggedright Los sistemas más flexibles son los que dependen solo de abstracciones, no
+        de concreciones; la política de alto nivel no nombra el detalle
+      & \raggedright \textcite[87]{martin2017} \tabularnewline
+    \raggedright Volatilidad de interfaces frente a implementaciones
+      & \raggedright Cambiar una interfaz obliga a cambiar sus implementaciones, pero no al
+        contrario: la interfaz es el elemento más estable del que depender
+      & \raggedright \textcite[88]{martin2017} \tabularnewline
+    \raggedright Reglas operativas del DIP
+      & \raggedright No referirse a clases concretas volátiles, no sobreescribir funciones
+        concretas y usar factorías abstractas para la creación
+      & \raggedright \textcite[89]{martin2017} \tabularnewline
+    \raggedright Regla de Dependencia
+      & \raggedright Las dependencias del código fuente apuntan solo hacia adentro; nada de un
+        círculo interno conoce nada de un círculo externo
+      & \raggedright \textcite[203]{martin2017} \tabularnewline
+    \raggedright Características comunes de Clean, Hexagonal, DCI y BCE
+      & \raggedright Independencia de frameworks, de la interfaz de usuario, de la base de datos
+        y de agencias externas; reglas de negocio probables en aislamiento
+      & \raggedright \textcite[202]{martin2017} \tabularnewline
+    \raggedright Puertos y adaptadores
+      & \raggedright El núcleo declara el puerto y la tecnología aporta el adaptador que lo
+        implementa, de modo que el núcleo ignora el dispositivo concreto
+      & \raggedright \textcite{cockburn2005} \tabularnewline
+    \raggedright Capa de adaptadores de interfaz
+      & \raggedright Convierte los datos entre el formato del caso de uso y el de la tecnología
+        externa; es el lugar natural del detalle
+      & \raggedright \textcite[205]{martin2017} \tabularnewline
+    \raggedright Dominio al centro (Onion)
+      & \raggedright El Modelo de Dominio no se acopla más que a sí mismo; las interfaces de
+        repositorio van en el núcleo y el acceso a datos fuera
+      & \raggedright \textcite{palermo2008} \tabularnewline
+    \raggedright Flujo de control frente a dependencia de código fuente
+      & \raggedright El núcleo sigue invocando la operación; lo que se invierte en el límite es
+        la dirección de la dependencia del código fuente
+      & \raggedright \textcite[87, 91]{martin2017} \tabularnewline
+    \raggedright Testabilidad mediante dobles de prueba
+      & \raggedright Con el puerto en el núcleo, la prueba sustituye el adaptador real y ejercita
+        la regla de negocio sin interfaz, base de datos ni servidor
+      & \raggedright \textcite[202]{martin2017} \tabularnewline
+    \bottomrule
+  \end{tabular}
+  \caption{Conceptos clave de la investigación INV-P4.}
+  \label{tab:inv-p4-conceptos}
+\end{table}
+
+\section{Puntos de conexión con las preguntas}
+
+\begin{itemize}
+  \item \textbf{P4, inciso a):} la dependencia directa \texttt{OrderProcessor}
+        $\rightarrow$ \texttt{AddressValidatorService} hace que una política de alto nivel
+        nombre un detalle volátil, lo que contraviene el DIP \parencite[87]{martin2017} y la
+        Regla de Dependencia \parencite[203]{martin2017}, y rompe la relación puerto-adaptador
+        \parencite{cockburn2005}.
+  \item \textbf{P4, inciso b):} el rediseño consiste en declarar \texttt{IAddressValidator} en
+        el núcleo y dejar el adaptador HTTP fuera, en la capa de adaptadores de interfaz
+        \parencite[205]{martin2017}, por ser el elemento volátil \parencite[88]{martin2017}.
+  \item \textbf{P4, inciso c):} la prueba del núcleo sin HTTP se sostiene en la testabilidad de
+        estas arquitecturas \parencite[202]{martin2017}, y el cambio de proveedor queda
+        confinado al adaptador porque la dependencia apunta a la interfaz, el elemento más
+        estable \parencite[88]{martin2017}.
+  \item \textbf{P1, P2 y P6:} la Regla de Dependencia y la simetría puerto-adaptador son el
+        mismo criterio que P1 y P2 contrastan con la N-Capas, y el argumento estructural que P6
+        opone a las optimizaciones de capas abiertas.
+\end{itemize}
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Formulación del DIP.} El enunciado del issue cita la forma canónica de SOLID
+        («los módulos de alto nivel no deben depender de módulos de bajo nivel; ambos deben
+        depender de abstracciones»), que no aparece con esas palabras en el capítulo~11 de
+        \textcite{martin2017}. Se citó la formulación literal de la fuente disponible —
+        dependencias solo hacia abstracciones, no hacia concreciones
+        \parencite[87]{martin2017}— y se desarrolló el resto con el criterio de volatilidad
+        \parencite[88]{martin2017}, que es lo que el libro sí sostiene en ese lugar.
+  \item \textbf{«Test double» como término.} Martin no usa ese vocabulario en las páginas
+        citadas: lo que afirma es que las reglas de negocio se prueban sin interfaz de usuario,
+        base de datos ni servidor \parencite[202]{martin2017}. El término procede de la
+        literatura de pruebas y aquí se emplea como etiqueta de la técnica, no como cita.
+  \item \textbf{Stable Abstractions Principle.} El issue lo lista entre los conceptos a
+        investigar. Se dejó fuera del cuerpo porque pertenece a las métricas de estabilidad de
+        componentes y no interviene en el rediseño que pide P4; el papel que el issue le
+        atribuye lo cumple el criterio de volatilidad \parencite[88]{martin2017}.
+  \item \textbf{Fuentes sin paginación.} \textcite{cockburn2005} y \textcite{palermo2008} son
+        páginas web sin numeración impresa, así que se citan sin página; las de
+        \textcite{martin2017} son las páginas impresas verificadas contra el PDF de
+        \texttt{Bibliografias/}.
+  \item \textbf{Diagrama de dependencias.} El issue sugiere dibujar el antes y el después. No se
+        duplica aquí: ese diagrama corresponde al cuerpo de la respuesta
+        (\texttt{preguntas/p4-inversion-dependencias/solucion.tex}), y repetirlo en las notas
+        añadiría una figura redundante al mismo capítulo.
+\end{itemize}
+\endgroup
