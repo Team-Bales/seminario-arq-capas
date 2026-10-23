@@ -1,5 +1,4 @@
 % ============================================================
-% preguntas/p1-trade-offs/solucion.tex — P1 (issue #1)
 % Integrante: Heily Rodríguez Rodríguez
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Fuente de trabajo: solucion.md (misma carpeta).
@@ -27,15 +26,7 @@ Respecto a la testabilidad, con esta estructura las reglas de negocio pueden pro
 
 En cuanto al cambio de SQL Server a MongoDB, basta con escribir un nuevo adaptador que implemente el mismo puerto y registrarlo en lugar del anterior. El dominio y los casos de uso no se modifican. Martin menciona este caso entre las propiedades comunes a estas arquitecturas, entre ellas la hexagonal: se puede cambiar SQL Server por Mongo u otra base de datos sin que las reglas de negocio queden atadas a ella \fuente{martin2017}{202}. La guía de Microsoft coincide: si las interfaces de los repositorios se definen en el dominio, la persistencia puede sustituirse sin afectarlo \citep[pp.~145--146]{delatorre2010}. Para que esto funcione, las entidades deben ser ignorantes de la persistencia y por la frontera solo deben cruzar estructuras simples \parencites[p.~207]{martin2017}[p.~55]{delatorre2010}. Conviene añadir un matiz honesto: Martin advierte que estos reemplazos pueden no ser triviales, aunque la estructura de \emph{plugins} los hace factibles \fuente{martin2017}{171}.
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{El error se plantea como un problema de dirección, no de cantidad de dependencias.} Según la métrica de inestabilidad de Martin, la relación negocio $\rightarrow$ datos de la N-Capas \emph{cumple} el SDP, porque la capa de datos tiene $I = 0$ \citep[pp.~122--123]{martin2017}. Por eso la crítica no se apoya en la métrica, sino en la lectura cualitativa del SDP \fuente{martin2017}{120} y en el SAP \fuente{martin2017}{126}. El análisis completo está en las notas de investigación.
-  \item \textbf{Clean y Hexagonal se tratan juntas.} El enunciado pide responder con los principios de ambas, y las dos llegan a la misma estructura: la interfaz de persistencia pertenece al núcleo. La Onion de Palermo no se desarrolla por separado, porque la pregunta no la nombra en sus apartados y la P2 se dedica a compararla con la Hexagonal.
-  \item \textbf{\texttt{IInventarioRepository} es un ejemplo propio}, elegido para anclar la explicación al sistema de inventario del enunciado. No procede de ninguna fuente.
-  \item \textbf{Se descartó la objeción de la testabilidad «High».} \citet[p.~9]{richards2015} califica como alta la testabilidad de la N-Capas, pero sus ejemplos solo simulan la presentación o el negocio, nunca la persistencia, que es lo que el equipo necesita aislar. Por eso no contradice el enunciado y no se incluye en la respuesta.
-  \item \textbf{Se limitó la respuesta a los tres apartados.} El balance de costes, como el coste de las fronteras \fuente{martin2017}{218} o la conveniencia de la N-Capas como punto de partida \fuente{richards2015}{7}, no se desarrolla para no salir del enunciado. Solo se conserva el matiz de que el reemplazo de un \emph{plugin} puede no ser trivial \fuente{martin2017}{171}.
-\end{itemize}
 
 \section*{Notas de investigación}
 \input{investigacion/p1-regla-dependencia/notas}

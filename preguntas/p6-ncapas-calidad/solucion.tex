@@ -1,11 +1,8 @@
 % =============================================================================
-% preguntas/p6-ncapas-calidad/solucion.tex — P6 (issue #11)
 % Integrante: Enrique A Gonzalez Moreira
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Sin preámbulo: no declara clase de documento, inicio de documento ni paquetes.
 % Fuente de trabajo: solucion.md (misma carpeta).
-% Estructura del issue #11: \chapter con el título oficial + 3 \section (una por
-% apartado del enunciado) + Notas de diseño + Notas de investigación.
 % Citas: páginas impresas de Richards (2015) y Martin (2017); Richards y Ford
 % (2020) no conserva paginación al extraer el texto del PDF y se cita por
 % capítulo; Cockburn (2005) y Palermo (2008) son web sin paginación.
@@ -13,8 +10,6 @@
 % cockburn2005, palermo2008. referencias.bib no declara entradas nuevas.
 % Comillas: se usan comillas tipográficas literales, no \enquote, para no
 % depender de csquotes (no está en la lista de paquetes de preamble.tex, #13).
-% Tabla de calificaciones: obligatoria por el issue #11; ver la nota sobre su
-% procedencia en «Notas de diseño».
 % =============================================================================
 
 \chapter{P6: Evaluación de N-Capas frente a Atributos de Calidad: Open Layers y Sinkhole Anti-pattern}
@@ -220,60 +215,9 @@ reconstruirla como Hexagonal o Limpia. Por eso, ante requisitos de alta escalabi
 agilidad, las arquitecturas de dominio no son «una optimización más» de la N-Capas: son la
 corrección de la causa que ninguna optimización de la N-Capas puede alcanzar.
 
-\subsection*{Conclusión}
 
-El estudiante acierta en que las técnicas existen y están documentadas, y falla en la
-conclusión. Las capas abiertas y el \emph{fast-lane reader} compran rendimiento local con la
-única moneda que la N-Capas tenía para el cambio controlado —el aislamiento—, institucionalizan
-el sinkhole que pretendían evitar (la capa vaciada queda como \emph{pass-through} permanente y
-sin incentivo para llenarse de lógica), y dejan intactas la naturaleza monolítica y el
-acoplamiento que causan las calificaciones bajas en agilidad, despliegue y escalabilidad. La
-regla del 80/20 es el veredicto: cuando esas técnicas dejan de ser excepción y se vuelven
-necesidad, el estilo en capas no es el adecuado. Lo que exigen la alta escalabilidad y la
-agilidad es estructural —dependencias apuntando hacia el dominio, detalles como \emph{plugins}
-reemplazables, núcleo probable en aislamiento— y eso es, por definición, lo que ofrecen la
-Hexagonal y la Limpia, y lo que la N-Capas no puede ofrecer «incluso con optimizaciones».
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Dirección causal del sinkhole.} El enunciado sugiere que las capas abiertas
-        «llevan» al sinkhole; las fuentes presentan la relación inversa: las capas abiertas se
-        proponen como reacción al sinkhole, con un \emph{trade-off} explícito
-        \parencite[7]{richards2015}; \parencite[cap.~10]{richardsford2020}. Para no contradecir
-        el enunciado, la respuesta expone el bucle completo —capas vacías, sinkhole, apertura
-        sancionada del rodeo, vaciado acelerado y aislamiento perdido—, que es la lectura fiel a
-        las fuentes y responde a la preocupación real del apartado: que la «solución» degenera
-        la arquitectura.
-  \item \textbf{Procedencia de la tabla~\ref{tab:p6-caracteristicas}.} El issue~\#11 exige una
-        tabla \texttt{booktabs} real con las puntuaciones de agilidad, desplegabilidad y
-        escalabilidad comparando N-Capas con Hexagonal y Limpia.
-        \textcite{richardsford2020} solo publican esas puntuaciones para los estilos que
-        catalogan: no puntúan la Hexagonal ni la Limpia. Atribuirles valores habría sido una
-        cita falsa, así que la columna de N-Capas reproduce las puntuaciones publicadas y las de
-        Hexagonal y Limpia se declaran, en el pie de la tabla, como valoración propia derivada
-        de las propiedades citadas celda a celda.
-  \item \textbf{Estrategia de citas de Richards y Ford (2020).} El PDF disponible en
-        \texttt{Bibliografias/} no conserva la paginación impresa al extraer el texto, así que
-        ese libro se cita por capítulo y sección (“Layers of Isolation”, “Other Considerations”,
-        “Architecture Characteristics Ratings”). \textcite{richards2015} y
-        \textcite{martin2017} sí se citan con página exacta: las de Richards se verificaron
-        contra los pies de página del propio reporte (numeración impresa del capítulo~1; en el
-        PDF local aparece desplazada por las páginas preliminares) y las de Martin se
-        contrastaron con las ya usadas en P4.
-  \item \textbf{Doble cita Richards (2015) y Richards y Ford (2020).} El seminario atribuye las
-        calificaciones a \textcite{richards2015}; \textcite{richardsford2020} es el tratamiento
-        ampliado del mismo autor principal. Se citó el primero para las calificaciones del
-        patrón y el segundo para el mecanismo de capas abiertas, el \emph{fast-lane reader} y la
-        partición técnica, por ser donde el tratamiento es más completo.
-  \item \textbf{DDD sin Evans.} El enunciado menciona «principios de DDD». Se sustentó con la
-        partición por dominio \parencite[cap.~10]{richardsford2020} y el dominio al centro
-        \parencite{palermo2008}; \parencite[203]{martin2017}, sin recurrir a Evans, que no
-        figura entre las fuentes consultadas para esta pregunta.
-  \item \textbf{Citas en inglés.} Se conservaron textuales en el idioma original, con la misma
-        convención del resto del documento. Donde el original contiene una errata (“it a good
-        indicator”), se corrigió con inserción editorial marcada: “it [is] a good indicator”.
-\end{itemize}
 
 \section*{Notas de investigación}
 

@@ -1,17 +1,13 @@
 % =============================================================================
-% preguntas/p5-kitty-problem/solucion.tex — P5 (issue #9)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Sin preámbulo: no declara clase de documento, inicio de documento ni paquetes.
 % Fuente de trabajo: solucion.md (misma carpeta).
-% Estructura del issue #9: \chapter con el título oficial + 3 \section (una por
-% apartado del enunciado) + Notas de diseño + Notas de investigación.
 % Citas: biblatex con páginas impresas; Richards & Ford (2020), Cockburn (2005)
 % y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
 % Claves usadas, todas de core.bib: martin2017, richards2015, richardsford2020,
 % delatorre2010, cockburn2005, palermo2008.
 % Paquetes: los del preámbulo del #13 (enumitem, tikz) más listings, pedido
-% para preamble.tex en el issue #13.
 % =============================================================================
 
 % --- Definiciones auxiliares. Son globales (siguen activas en los capítulos
@@ -37,29 +33,14 @@
 \label{sec:p5}
 % Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
 \begingroup\emergencystretch=3em
-\section{¿Por qué dividir por verbos o entidades provocó el \emph{Kitty Problem}?}
+\section{Por qué la división por verbos o entidades provocó el \emph{Kitty Problem}}
 \label{sec:p5-causas}
 
-El enunciado presenta el \emph{Kitty Problem}: un requisito transversal, la entrega de
-gatitos, afecta a varios servicios ya existentes de un sistema de taxis (\texttt{TaxiUI},
-\texttt{TaxiFinder}, \texttt{TaxiSelector}, etc.) y obliga a cambiarlos todos de forma
-coordinada\footnote{El enunciado sitúa el ejemplo en \textit{Fundamentals of Software
-Architecture} \parencite{richardsford2020}. En la bibliografía consultada, el caso aparece
-en \textcite[cap.~27]{martin2017}, que es la fuente que se cita en esta respuesta.}. La
-pregunta pide:
-
-\begin{enumerate}[label=(\alph*)]
-  \item describir el problema y explicar por qué dividir el sistema en servicios basados
-        en verbos o entidades funcionales (como \texttt{TaxiFinder} o
-        \texttt{TaxiSelector}) llevó a él;
-  \item explicar cómo, con los principios de DDD y de las arquitecturas Onion (Cebolla) y
-        Clean (Limpia), podría
-        haberse diseñado el sistema para que un cambio así afectara a un solo componente
-        o servicio, y
-  \item proponer una solución en la que componentes como \texttt{Kittens} y
-        \texttt{Rides} se añadan como \emph{plugins}, explicando cómo respeta el Principio
-        de Abierto/Cerrado (OCP) y qué papel desempeñan los adaptadores.
-\end{enumerate}
+El \emph{Kitty Problem} muestra cómo un requisito transversal, la entrega de gatitos, obliga a
+cambiar de forma coordinada todos los servicios de un sistema de taxis. Aunque el
+enunciado sitúa el ejemplo en \textit{Fundamentals of Software Architecture}
+\parencite{richardsford2020}, en la bibliografía consultada el caso aparece en
+\textcite[cap.~27]{martin2017}, que es la fuente que se cita en esta respuesta.
 
 Martin parte de un agregador de taxis, ya presentado en el capítulo sobre el Principio de
 Sustitución de Liskov, que conoce a muchos proveedores de taxis de una ciudad y permite a
@@ -542,29 +523,7 @@ con su propio lenguaje (\texttt{Rides}, \texttt{Kittens}) que se enchufan como
 todo el sistema en una extensión localizada en un componente lógico, más un ajuste en la
 capa externa. Eso es lo que persigue el OCP.
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Fuente del \emph{Kitty Problem}.} El enunciado lo sitúa en Richards y
-        Ford, pero en la bibliografía consultada aparece en
-        \textcite[cap.~27]{martin2017}. Se describe el problema tal como se pide y se
-        aclara el origen en una nota al pie.
-  \item \textbf{«Un solo componente», con matices.} Se reconoce explícitamente que la
-        interfaz de usuario también cambia, en coherencia con la propia solución de Martin
-        y con el cierre estratégico.
-  \item \textbf{Contextos con un modelo mínimo compartido.} \texttt{Rides} y
-        \texttt{Kittens} se presentan como Contextos Delimitados en su modelo propio, que
-        comparten, a propósito, identificadores y abstracciones del núcleo.
-  \item \textbf{Regla del cliente alérgico.} Se usa para mostrar un caso que en apariencia
-        obligaría a modificar \texttt{Rides} y que, con un punto de extensión en el núcleo
-        y los datos propios de \texttt{Kittens}, no lo hace. El requisito es de Martin
-        \parencite[243]{martin2017}; usarlo para mostrar el punto de extensión es una
-        aportación propia.
-  \item \textbf{Adaptadores.} Como el capítulo~27 no los menciona, su papel se
-        fundamenta en \textcite{cockburn2005}, \textcite[205]{martin2017},
-        \textcite[58, 108]{delatorre2010} y \textcite[23]{richards2015}, y se presenta
-        como interpretación propia.
-\end{itemize}
 
 \section*{Notas de investigación}
 \input{investigacion/p5-kitty-ocp/notas}

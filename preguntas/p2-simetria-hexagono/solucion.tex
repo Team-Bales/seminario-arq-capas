@@ -1,5 +1,4 @@
 % ============================================================
-% preguntas/p2-simetria-hexagono/solucion.tex — P2 (issue #3)
 % Integrante: Heily Rodríguez Rodríguez
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Fuente de trabajo: solucion.md (misma carpeta).
@@ -107,15 +106,7 @@ Cockburn aclara que el número seis no tiene ningún significado. Eligió un hex
 
 Lo que sí importa es que en un hexágono \textbf{ningún lado está por encima de otro}. Todos los lados son iguales, así que la posición deja de indicar importancia, que es justo lo que ocurría en la pila de capas. Por eso Cockburn propone olvidar «por un momento» las diferencias entre izquierda y derecha o entre arriba y abajo \citep[«Nature of the Solution»]{cockburn2005}. Más adelante sí distingue dos lados. A la izquierda pone lo que pone en marcha la aplicación, los \textbf{puertos primarios}, como la interfaz de usuario o las pruebas. A la derecha pone lo que la aplicación utiliza, los \textbf{puertos secundarios}, como la base de datos. Pero esa distinción depende de quién empieza la conversación, no de cuál es más importante \citep[«The Left-Right Asymmetry»]{cockburn2005}. En resumen, el hexágono elimina la jerarquía y solo conserva la diferencia que importa: lo que está dentro de la aplicación y lo que está fuera.
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Se matiza la premisa de que Onion es una representación «de capas apiladas».} Onion usa anillos concéntricos y comparte con Hexagonal la oposición dentro/fuera \citep{palermo2008}. El propio Palermo muestra que la forma del dibujo puede ser cualquiera, porque lo que cambia es la estructura \citep{palermo2008c}. Por eso el contraste se plantea con la pila de la N-Capas y con la jerarquía interna de Onion.
-  \item \textbf{La correspondencia entre las clases de CodeCampServer y los puertos y adaptadores es una interpretación propia.} Palermo solo afirma que Hexagonal y Onion comparten la premisa de externalizar la infraestructura y escribir código adaptador \citep{palermo2008}.
-  \item \textbf{Las dos figuras son de elaboración propia} y están dibujadas con TikZ, con los estilos compartidos de \texttt{preamble.tex}, así que su texto es real y no una imagen rasterizada.
-  \item \textbf{Se citan las partes 2 y 3 de Palermo}, además de la parte 1 que figura en \texttt{core.bib}. Sus entradas se declaran en el \texttt{fuentes.bib} de la investigación INV-P2 y no se repiten aquí, para no duplicar claves. No se citan los comentarios de lectores del final de la parte 3.
-  \item \textbf{La respuesta se limita a Cockburn y Palermo}, las dos fuentes del issue.
-\end{itemize}
 
 \section*{Notas de investigación}
 \input{investigacion/p2-hexagonal-onion/notas}

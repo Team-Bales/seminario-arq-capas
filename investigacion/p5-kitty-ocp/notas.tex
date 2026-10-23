@@ -1,12 +1,8 @@
 % ============================================================
-% investigacion/p5-kitty-ocp/notas.tex — INV-P5 (issue #10)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye desde preguntas/p5-kitty-problem/solucion.tex
 % mediante \input{investigacion/p5-kitty-ocp/notas}.
-% Estructura del issue #10: \section*{Notas de investigación: …} + Síntesis +
-% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
 % Título: se omite «en Richards & Ford» del título oficial porque el Kitty
-% Problem está en Martin (2017, cap. 27); propuesto en el issue #13.
 % Fuente de trabajo: notas.md (misma carpeta).
 % Citas: páginas impresas; Richards & Ford (2020) no tiene paginación y se
 % cita por capítulo/sección. Todas las claves están en core.bib.
@@ -120,20 +116,4 @@ o intercambiables \parencite[170--173]{martin2017}. Y
         contextos de P3; las clases base abstractas y las factorías ilustran el DIP de P4.
 \end{itemize}
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Atribución.} El enunciado atribuye el \emph{Kitty Problem} a Richards y
-        Ford, pero está en \textcite[cap.~27]{martin2017}; la palabra \emph{kitty} no
-        aparece en \textcite{richardsford2020}. Conviene describir el problema tal como se
-        pide y aclarar el origen en una nota al pie.
-  \item \textbf{«Un solo componente».} En la solución de Martin, \texttt{TaxiUI} también
-        cambia \parencite[244]{martin2017}. Lo preciso es decir que el cambio queda
-        confinado a añadir \texttt{Kittens} más un ajuste en la interfaz de usuario,
-        coherente con el cierre estratégico \parencite[106]{martin2017}.
-  \item \textbf{Adaptadores.} El capítulo~27 no habla de adaptadores. Su papel se
-        argumenta con la capa de adaptadores de interfaz \parencite[205]{martin2017} y el
-        adaptador de contrato del microkernel \parencite[23]{richards2015}; esta conexión
-        es interpretación propia.
-\end{itemize}
-\endgroup

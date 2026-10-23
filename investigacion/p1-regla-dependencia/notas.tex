@@ -1,5 +1,4 @@
 % ============================================================
-% investigacion/p1-regla-dependencia/notas.tex — INV-P1 (issue #2)
 % Integrante: Heily Rodríguez Rodríguez
 % Fragmento puro: se incluye desde preguntas/p1-trade-offs/solucion.tex
 % mediante \input{investigacion/p1-regla-dependencia/notas}.
@@ -98,12 +97,4 @@ Los conceptos se agrupan en tres tablas: la Regla de Dependencia y la inversión
   \item \textbf{P2 y P4.} Para la P2: la asimetría dentro/fuera y la relación con el patrón \emph{Adapter} \citep[«Nature of the Solution», «Related Patterns»]{cockburn2005}. Para la P4: el DIP, el componente \texttt{main} y el \emph{output port} \citep[pp.~87--91, 206]{martin2017}.
 \end{itemize}
 
-\section*{Notas de diseño}
 
-\paragraph{El acoplamiento eferente no se critica con la métrica del SDP.} El issue habla de «alto acoplamiento eferente» en la capa de negocio. Sin embargo, según la métrica de Martin, la N-Capas \emph{no} viola el SDP: la capa de datos tiene dependientes y ninguna dependencia saliente, así que su $I = 0$, mientras que la de negocio tiene $I > 0$. Como el SDP pide que $I$ decrezca en la dirección de la dependencia, la relación negocio $\rightarrow$ datos lo cumple \citep[pp.~122--123]{martin2017}. Por eso se eligió otro ángulo. La crítica se apoya en la lectura cualitativa del SDP, según la cual un componente que se espera volátil no debe ser objeto de dependencia de otro difícil de cambiar \fuente{martin2017}{120}, y en el SAP: la capa de datos es estable pero concreta, lo que la sitúa en la zona de dolor \citep[pp.~126, 129]{martin2017}. La inversión de dependencias resuelve ambas cosas, tal como Martin corrige una violación del SDP con el DIP \citep[pp.~124--125]{martin2017}.
-
-\paragraph{La testabilidad «High» de Richards no contradice el enunciado.} \citet[p.~9]{richards2015} califica como alta la testabilidad de la N-Capas, pero sus ejemplos solo simulan la presentación o el negocio, nunca la persistencia. La guía de Microsoft también propone \emph{mocks} por capa \citep[pp.~37--38]{delatorre2010}, pero aclara que el bajo nivel solo pasa a depender del alto nivel cuando los contratos se colocan en este último \citep[pp.~64--65]{delatorre2010}. La diferencia de Clean y Hexagonal no es \emph{que} existan interfaces, sino \emph{dónde viven} \parencites[pp.~168--169]{martin2017}[p.~145]{delatorre2010}.
-
-\paragraph{La interfaz es necesaria, pero no suficiente para migrar a MongoDB.} Además del puerto, por la frontera no pueden cruzar estructuras propias del motor, como filas o documentos \fuente{martin2017}{207}, y las entidades deben ser ignorantes de la persistencia \fuente{delatorre2010}{55}. Si no, el formato del motor se filtra hacia dentro y viola la Regla de Dependencia \fuente{martin2017}{204}. La traducción entre ambos modelos corresponde a la capa \emph{Interface Adapters} \fuente{martin2017}{205}.
-
-\paragraph{Fuentes.} Se usaron solo fuentes de la bibliografía recomendada del seminario, todas presentes en \texttt{core.bib}. La mención a Yourdon y Constantine (1979) se toma de \citet[cap.~3]{richardsford2020} y no se añade como entrada propia, porque no se consultó el original.
