@@ -1,0 +1,121 @@
+% ============================================================
+% preguntas/p2-simetria-hexagono/solucion.tex — P2 (issue #3)
+% Integrante: Heily Rodríguez Rodríguez
+% Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
+% Fuente de trabajo: solucion.md (misma carpeta).
+% Citas: los artículos web no tienen paginación. Cockburn se cita por
+% sección con \citep[«Sección»]{cockburn2005}; la serie de Palermo, por
+% entrega: palermo2008 (parte 1, core.bib), palermo2008b y palermo2008c
+% (partes 2 y 3, investigacion/p2-hexagonal-onion/fuentes.bib).
+% Figuras: TikZ con los estilos compartidos de preamble.tex (texto real, ATS).
+% ============================================================
+
+\chapter{P2: Simetría del Hexágono vs. Jerarquía de Capas}
+
+\section{Problema conceptual que resuelve la simetría del hexágono}
+
+Hexagonal y Onion persiguen lo mismo, aislar el núcleo de negocio, y el propio Palermo reconoce que ambas comparten la premisa de externalizar la infraestructura y escribir código adaptador para no acoplarse a ella \citep{palermo2008}. Lo que cambia es el dibujo, y el dibujo importa porque transmite una idea de cómo se organiza el sistema. Cuando una arquitectura se dibuja como una pila de capas, el dibujo sugiere un \textbf{orden de importancia}: la interfaz de usuario queda arriba y la base de datos abajo, como si fuera el cimiento sobre el que se apoya todo. Con esa imagen, que la lógica de negocio dependa de la base de datos parece lo normal. Cockburn explica que este dibujo aparece porque muchas aplicaciones solo se comunican con dos cosas: el usuario y la base de datos. Pero tiene dos problemas. Primero, en la práctica nadie respeta las líneas que separan las capas, y la lógica de negocio acaba repartida entre ellas. Segundo, si la aplicación se comunica con más de dos cosas, ya no cabe en una sola columna \citep[«Nature of the Solution»]{cockburn2005}. Palermo llega a lo mismo por otro camino: si se redibuja la N-Capas tradicional como círculos, se ve que toda la aplicación gira alrededor del acceso a datos \citep{palermo2008c}.
+
+El hexágono cambia la pregunta: ya no importa qué está arriba y qué está abajo, sino \textbf{qué está dentro de la aplicación y qué está fuera} (Figura~\ref{fig:p2-pila-hexagono}). Cockburn observa que los problemas con la interfaz de usuario y con la base de datos tienen la misma causa: la lógica de negocio está mezclada con el código que se comunica con el exterior \citep[«Motivation»; «Nature of the Solution»]{cockburn2005}. Por eso el hexágono los trata igual. La interfaz de usuario, las pruebas y la base de datos son, todos, elementos externos que se conectan a la aplicación. Onion se acerca a esta idea, porque pone la interfaz de usuario, la infraestructura y las pruebas en el mismo anillo exterior y deja claro que la base de datos «no es el centro» \citep{palermo2008}. La diferencia es que Onion sigue ordenando por niveles lo que hay \emph{dentro} del núcleo, mientras que el hexágono se fija sobre todo en la frontera entre dentro y fuera.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[font=\sffamily\small]
+    % (a) Pila de capas
+    \node[capa] (ui)  at (0, 1.9)  {Presentación};
+    \node[capa] (neg) at (0, 0.0)  {Negocio};
+    \node[capa] (dat) at (0, -1.9) {Datos\\(SQL Server)};
+    \draw[dependencia] (ui) -- (neg);
+    \draw[dependencia] (neg) -- (dat);
+    \node[font=\sffamily\footnotesize\bfseries] at (0, -3.2) {(a) Pila de capas};
+
+    % (b) Hexágono
+    \node[regular polygon, regular polygon sides=6, regular polygon rotate=30,
+          draw, thick, minimum size=3.6cm, fill=blue!6, align=center] (hex) at (7.15, 0)
+          {Aplicación\\(dominio y\\casos de uso)};
+    \coordinate (pi1) at ([yshift=6mm]hex.west);
+    \coordinate (pi2) at ([yshift=-6mm]hex.west);
+    \coordinate (ps1) at ([yshift=6mm]hex.east);
+    \coordinate (ps2) at ([yshift=-6mm]hex.east);
+    \foreach \p in {pi1, pi2, ps1, ps2} {\fill (\p) ++(-0.07,-0.17) rectangle ++(0.14,0.34);}
+    \node[modulo, minimum width=2.1cm, text width=1.9cm] (gui)  at (3.75, 1.3)  {GUI};
+    \node[modulo, minimum width=2.1cm, text width=1.9cm] (fit)  at (3.75, -1.3) {Pruebas\\(FIT)};
+    \node[modulo, minimum width=2.1cm, text width=1.9cm] (sql)  at (10.55, 1.3) {SQL Server};
+    \node[modulo, minimum width=2.1cm, text width=1.9cm] (mock) at (10.55, -1.3) {BD en\\memoria};
+    \draw[flecha] (gui.east) -- (pi1);
+    \draw[flecha] (fit.east) -- (pi2);
+    \draw[flecha] (ps1) -- (sql.west);
+    \draw[flecha] (ps2) -- (mock.west);
+    \node[font=\sffamily\scriptsize, align=center] at (3.75, -2.4)  {adaptadores\\primarios};
+    \node[font=\sffamily\scriptsize, align=center] at (10.55, -2.4) {adaptadores\\secundarios};
+    \node[font=\sffamily\scriptsize] at (7.15, -2.15) {\rule{1.4mm}{3.4mm}\ = puerto};
+    \node[font=\sffamily\footnotesize\bfseries] at (7.15, -3.2) {(b) Hexágono};
+  \end{tikzpicture}
+  \caption{De la pila de capas al hexágono. En (a) la posición marca una jerarquía y la base de datos es el cimiento; en (b) todos los actores externos están al mismo nivel y se conectan por puertos. Elaboración propia a partir de \citet[«Nature of the Solution»]{cockburn2005}.}
+  \label{fig:p2-pila-hexagono}
+\end{figure}
+
+\section{Traducción de «Puerto y Adaptador» a las interfaces internas de Onion}
+
+En la Arquitectura Hexagonal, un \textbf{puerto} es la «puerta» por la que la aplicación conversa con el exterior para un fin concreto, y se define como una interfaz o API. Un \textbf{adaptador} es la pieza que conecta una tecnología concreta, como SQL Server o una pantalla, a ese puerto \citep[«Nature of the Solution»]{cockburn2005}. Onion convierte esta idea en una regla sencilla: las capas de dentro definen las interfaces y las capas de fuera las implementan, de modo que las dependencias siempre apuntan hacia el centro \citep{palermo2008c}. El ejemplo más claro es el \textbf{repositorio}, la pieza que guarda y recupera los datos. Su interfaz se coloca en el anillo que rodea al modelo de dominio, y la clase que de verdad accede a la base de datos se coloca en el borde. Además, la interfaz se diseña según lo que necesita el núcleo, no según la tecnología que habrá detrás \citep{palermo2008}. Dicho con el vocabulario de Cockburn, la interfaz del repositorio es un \textbf{puerto secundario} y su implementación, un \textbf{adaptador secundario} (Figura~\ref{fig:p2-onion}).
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[font=\sffamily\scriptsize, scale=0.85, every node/.style={transform shape}]
+    % Anillos de Onion (de fuera hacia dentro)
+    \draw[thick, fill=orange!10] (0,0) circle (3.6);
+    \draw[thick, fill=orange!20] (0,0) circle (2.7);
+    \draw[thick, fill=orange!32] (0,0) circle (1.9);
+    \draw[thick, fill=orange!48] (0,0) circle (1.0);
+    \node[align=center, font=\sffamily\footnotesize\bfseries] at (0,0) {Modelo\\de dominio};
+    \node at (0, 1.45) {Servicios de dominio};
+    \node at (0, 2.3)  {Servicios de aplicación};
+    \node at (0, 3.15) {Interfaz de usuario · Infraestructura · Pruebas};
+    % Puerto: interfaz en el núcleo
+    \node[draw, thick, dashed, fill=yellow!20, font=\ttfamily\scriptsize, inner sep=3pt]
+          (ir) at (0,-1.45) {IConferenceRepository};
+    % Adaptadores en el anillo exterior
+    \node[draw, thick, fill=white, font=\ttfamily\scriptsize, inner sep=3pt]
+          (sc) at (-1.95,-2.85) {SpeakerController};
+    \node[draw, thick, fill=white, font=\ttfamily\scriptsize, inner sep=3pt]
+          (cr) at (1.95,-2.85) {ConferenceRepository};
+    \node[cylinder, shape border rotate=90, aspect=0.25, draw, thick, fill=gray!10,
+          minimum width=1.1cm, minimum height=1.0cm] (db) at (5.0,-2.85) {BD};
+    \draw[dependencia] (sc.north) -- node[left] {usa} (ir.south west);
+    \draw[dependencia, dashed] (cr.north) -- node[right] {implementa} (ir.south east);
+    \draw[flecha] (cr) -- (db);
+    % Leyenda
+    \node[align=left, anchor=west] at (3.9, 1.6)
+          {\textbf{Puerto secundario:}\\interfaz definida en el núcleo};
+    \node[align=left, anchor=west] at (3.9, 0.6)
+          {\textbf{Adaptador secundario:}\\implementación en el borde};
+    \node[align=left, anchor=west] at (3.9, -0.4)
+          {Las flechas de dependencia\\apuntan hacia el centro};
+  \end{tikzpicture}
+  \caption{Puerto y adaptador en Onion, con el ejemplo de CodeCampServer. La interfaz de repositorio vive en el núcleo y su implementación en el anillo exterior; un contenedor IoC la inyecta en el controlador. Elaboración propia a partir de \citet{palermo2008} y \citet{palermo2008b}.}
+  \label{fig:p2-onion}
+\end{figure}
+
+\begin{sloppypar}
+Palermo lo muestra con su aplicación CodeCampServer. El controlador de la interfaz, \texttt{SpeakerController}, no usa directamente la clase que accede a la base de datos, sino la interfaz \texttt{IConferenceRepository}, que está en el núcleo. La clase \texttt{ConferenceRepository} implementa esa interfaz desde fuera, y un contenedor de inversión de control (IoC) se encarga de crearla y entregársela al controlador en tiempo de ejecución \citep{palermo2008b}. Cockburn hace lo mismo en su ejemplo: la clase \texttt{Discounter} recibe en su constructor un \texttt{RateRepository}, que puede ser la base de datos real o una simulada en memoria \citep[«Sample Code»]{cockburn2005}. Los dos autores apoyan este mecanismo en el principio de inversión de dependencias \parencites{palermo2008}[«Related Patterns»]{cockburn2005}. La diferencia es que Onion se centra sobre todo en el lado de la infraestructura, ya que cualquier capa externa puede llamar directamente a una interna \citep{palermo2008c}. El hexágono, en cambio, trata igual los dos lados: lo que pone en marcha la aplicación y lo que la aplicación utiliza.
+\end{sloppypar}
+
+
+\section{Por qué el hexágono no tiene seis lados por una razón numérica}
+
+Cockburn aclara que el número seis no tiene ningún significado. Eligió un hexágono para tener espacio donde dibujar todos los puertos y adaptadores que hagan falta, algo que un dibujo de capas en una sola columna no permite. Con esa forma quiere resaltar dos cosas: la diferencia entre dentro y fuera, con todos los puertos de la misma naturaleza, y que la aplicación tiene un número concreto de puertos distintos \citep[«Nature of the Solution»]{cockburn2005}. De hecho, considera que el número de puertos, normalmente entre dos y cuatro, es «en gran medida una cuestión de gusto» \citep[«How Many Ports?»]{cockburn2005}. Que el hexágono tenga seis lados no significa que la aplicación tenga seis puertos.
+
+Lo que sí importa es que en un hexágono \textbf{ningún lado está por encima de otro}. Todos los lados son iguales, así que la posición deja de indicar importancia, que es justo lo que ocurría en la pila de capas. Por eso Cockburn propone olvidar «por un momento» las diferencias entre izquierda y derecha o entre arriba y abajo \citep[«Nature of the Solution»]{cockburn2005}. Más adelante sí distingue dos lados. A la izquierda pone lo que pone en marcha la aplicación, los \textbf{puertos primarios}, como la interfaz de usuario o las pruebas. A la derecha pone lo que la aplicación utiliza, los \textbf{puertos secundarios}, como la base de datos. Pero esa distinción depende de quién empieza la conversación, no de cuál es más importante \citep[«The Left-Right Asymmetry»]{cockburn2005}. En resumen, el hexágono elimina la jerarquía y solo conserva la diferencia que importa: lo que está dentro de la aplicación y lo que está fuera.
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Se matiza la premisa de que Onion es una representación «de capas apiladas».} Onion usa anillos concéntricos y comparte con Hexagonal la oposición dentro/fuera \citep{palermo2008}. El propio Palermo muestra que la forma del dibujo puede ser cualquiera, porque lo que cambia es la estructura \citep{palermo2008c}. Por eso el contraste se plantea con la pila de la N-Capas y con la jerarquía interna de Onion.
+  \item \textbf{La correspondencia entre las clases de CodeCampServer y los puertos y adaptadores es una interpretación propia.} Palermo solo afirma que Hexagonal y Onion comparten la premisa de externalizar la infraestructura y escribir código adaptador \citep{palermo2008}.
+  \item \textbf{Las dos figuras son de elaboración propia} y están dibujadas con TikZ, con los estilos compartidos de \texttt{preamble.tex}, así que su texto es real y no una imagen rasterizada.
+  \item \textbf{Se citan las partes 2 y 3 de Palermo}, además de la parte 1 que figura en \texttt{core.bib}. Sus entradas se declaran en el \texttt{fuentes.bib} de la investigación INV-P2 y no se repiten aquí, para no duplicar claves. No se citan los comentarios de lectores del final de la parte 3.
+  \item \textbf{La respuesta se limita a Cockburn y Palermo}, las dos fuentes del issue.
+\end{itemize}
+
+\section*{Notas de investigación}
+\input{investigacion/p2-hexagonal-onion/notas}
