@@ -1,0 +1,281 @@
+% =============================================================================
+% preguntas/p6-ncapas-calidad/solucion.tex — P6 (issue #11)
+% Integrante: Enrique A Gonzalez Moreira
+% Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
+% Sin preámbulo: no declara clase de documento, inicio de documento ni paquetes.
+% Fuente de trabajo: solucion.md (misma carpeta).
+% Estructura del issue #11: \chapter con el título oficial + 3 \section (una por
+% apartado del enunciado) + Notas de diseño + Notas de investigación.
+% Citas: páginas impresas de Richards (2015) y Martin (2017); Richards y Ford
+% (2020) no conserva paginación al extraer el texto del PDF y se cita por
+% capítulo; Cockburn (2005) y Palermo (2008) son web sin paginación.
+% Claves usadas, todas de core.bib: richards2015, richardsford2020, martin2017,
+% cockburn2005, palermo2008. referencias.bib no declara entradas nuevas.
+% Comillas: se usan comillas tipográficas literales, no \enquote, para no
+% depender de csquotes (no está en la lista de paquetes de preamble.tex, #13).
+% Tabla de calificaciones: obligatoria por el issue #11; ver la nota sobre su
+% procedencia en «Notas de diseño».
+% =============================================================================
+
+\chapter{P6: Evaluación de N-Capas frente a Atributos de Calidad: Open Layers y Sinkhole Anti-pattern}
+\label{sec:p6}
+
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em \hbadness=2000
+
+\section{Capas abiertas, aislamiento de capas y mantenibilidad a largo plazo}
+\label{sec:p6-aislamiento}
+
+El enunciado parte de una crítica conocida: la arquitectura N-Capas puntúa bajo en agilidad
+general, facilidad de despliegue y escalabilidad \parencite[8-9]{richards2015}. Un estudiante
+sostiene que esas carencias pueden mitigarse con capas abiertas (\emph{open layers}) y técnicas
+como el \emph{fast-lane reader}. La afirmación es \textbf{tácticamente correcta pero
+estratégicamente insuficiente}. Correcta, porque ambos mecanismos son reales y están
+documentados: las propias fuentes los presentan para aliviar costes puntuales de la N-Capas
+\parencite[cap.~10]{richardsford2020}. Insuficiente, porque ninguna de las dos técnicas corrige
+la causa estructural de esas calificaciones bajas —la naturaleza monolítica y el acoplamiento
+entre componentes \parencite[8-9]{richards2015}— y porque ambas se pagan con el único mecanismo
+que la N-Capas ofrecía para gestionar el cambio con seguridad: el Aislamiento de Capas.
+
+En la N-Capas cada capa es \textbf{cerrada} o \textbf{abierta}. Una capa cerrada no puede
+saltarse: toda solicitud debe atravesar la capa inmediatamente inferior para llegar a la
+siguiente \parencite[3]{richards2015}; \parencite[cap.~10]{richardsford2020}. Las capas cerradas
+son las que materializan el \textbf{Aislamiento de Capas} (\emph{layers of isolation}): los
+cambios hechos en una capa no impactan a componentes de otras siempre que los contratos entre
+capas se mantengan, y cada capa es independiente de las demás y conoce poco o nada del interior
+de las otras \parencite[3-4]{richards2015}.
+
+Abrir una capa invierte esa garantía. Si la presentación puede acceder directamente a la
+persistencia, un cambio en la persistencia impacta a la vez a la capa de negocio y a la de
+presentación, produciendo “a very tightly coupled application with layer interdependencies” y
+una arquitectura “very brittle, as well as difficult and expensive to change”
+\parencite[cap.~10]{richardsford2020}; el mismo argumento, con idéntica conclusión de que el
+sistema se vuelve “very hard and expensive to change”, está en \textcite[4]{richards2015}. El
+\emph{fast-lane reader} es exactamente ese mecanismo: declarar abiertas las capas de negocio y
+persistencia para que la presentación lea directamente la base de datos en consultas simples de
+recuperación \parencite[cap.~10]{richardsford2020}.
+
+A largo plazo, la mantenibilidad se juega en la gobernanza de esa decisión: “Failure to document
+or properly communicate which layers in the architecture are open and closed (and why) usually
+results in tightly coupled and brittle architectures that are very difficult to test, maintain,
+and deploy” \parencite[5]{richards2015}. Con capas abiertas, el aislamiento deja de ser una
+garantía de la arquitectura y pasa a depender de la disciplina del equipo: cada atajo autorizado
+multiplica los caminos posibles de cada solicitud, de modo que conocer el impacto de un cambio
+exige rastrear todos los flujos que cruzan capas. No sorprende que las mismas fuentes adviertan
+que, a medida que crecen las aplicaciones en capas, “characteristics like maintainability,
+agility, testability, and deployability are adversely affected”
+\parencite[cap.~10]{richardsford2020}. La cuenta, en síntesis: la capa abierta compra
+rendimiento local con la moneda de la mantenibilidad, justo el atributo que se quiere conservar
+a largo plazo.
+
+\section{Capas abiertas, sinkhole anti-pattern y la regla del 80/20}
+\label{sec:p6-sinkhole}
+
+El \textbf{architecture sinkhole anti-pattern} ocurre cuando las solicitudes atraviesan las
+capas como \emph{pass-through} simple, sin lógica de negocio en ninguna de ellas
+\parencite[7]{richards2015}; \parencite[cap.~10]{richardsford2020}. El ejemplo canónico: la
+presentación pide datos básicos de un cliente; negocio y persistencia no hacen más que reenviar
+la petición hasta una consulta SQL trivial; los datos suben por la pila sin agregarse,
+calcularse ni transformarse. El coste no es inocuo: “unnecessary object instantiation and
+processing, impacting both memory consumption and performance”
+\parencite[cap.~10]{richardsford2020}.
+
+Conviene precisar la dirección causal, porque las fuentes no dicen que las capas abiertas
+\emph{causen} el sinkhole: dicen que son la \textbf{reacción} propuesta cuando el sinkhole
+domina el tráfico. \textcite[7]{richards2015} sugiere considerar capas abiertas cuando la
+proporción de peticiones \emph{pass-through} se invierte, advirtiendo de inmediato que “it will
+be more difficult to control change due to the lack of layer isolation”;
+\textcite[cap.~10]{richardsford2020} presentan abrir todas las capas como “another approach to
+solving the architecture sinkhole anti-pattern”, con el mismo \emph{trade-off} de “increased
+difficulty in managing change within the architecture”.
+
+¿Por qué esa «solución» conduce de regreso al antipatrón? Porque no elimina su causa —capas
+intermedias vacías de lógica— sino que \textbf{institucionaliza el rodeo}: la capa hueca sigue
+existiendo, ahora como \emph{pass-through} permanente para las peticiones que aún la atraviesan,
+y el atajo sancionado elimina el incentivo para escribir en ella lógica de negocio. Cuantas más
+peticiones la salten, más se vacía; el sinkhole deja de ser un escenario puntual y se vuelve el
+estado crónico de la arquitectura. El resultado combina lo peor de ambos mundos: el coste de
+rendimiento del sinkhole y el acoplamiento de las capas abiertas.
+
+La \textbf{regla del 80/20} desarma la propuesta del estudiante porque no es una perilla de
+optimización sino un \textbf{diagnóstico de encaje del estilo}. Es típico que en torno al
+20\,\% de las solicitudes sean \emph{pass-through} y el 80\,\% porten lógica de negocio; el
+problema aparece cuando la proporción se invierte: “if 80 percent of the requests are sinkholes,
+it [is] a good indicator that the layered architecture is not the correct architecture style for
+the problem domain” \parencite[cap.~10]{richardsford2020}; \parencite[7]{richards2015}. Es
+decir: si un sistema necesita capas abiertas y \emph{fast-lanes} por doquier para ser viable, la
+regla no está autorizando la optimización; está dictaminando que la N-Capas no es la
+arquitectura correcta para ese dominio. La respuesta razonable al diagnóstico es cambiar de
+estilo, no optimizar el estilo equivocado, lo que conduce al tercer apartado.
+
+\section{Hexagonal y Limpia frente a N-Capas para alta escalabilidad y agilidad}
+\label{sec:p6-hexagonal-clean}
+
+Las calificaciones bajas de la N-Capas son estructurales, no accidentales. La agilidad general
+es baja porque hacer cambios sigue siendo “cumbersome and time-consuming [\ldots] because of the
+monolithic nature of most implementations as well as the tight coupling of components”
+\parencite[8]{richards2015}. El despliegue es bajo porque “One small change to a component can
+require a redeployment of the entire application”, incompatible con la entrega continua
+\parencite[8]{richards2015}; \textcite[cap.~10]{richardsford2020} puntúan la desplegabilidad
+como “very low” —un cambio de tres líneas obliga a redesplegar la unidad completa— y la
+elasticidad y escalabilidad como “very low (one star) [\ldots] primarily due to monolithic
+deployments and the lack of architectural modularity”. La escalabilidad es baja por “the trend
+toward tightly coupled and monolithic implementations” \parencite[9]{richards2015}.
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.20\linewidth}p{0.24\linewidth}p{0.24\linewidth}p{0.24\linewidth}@{}}
+    \toprule
+    \textbf{Característica} & \textbf{N-Capas} & \textbf{Hexagonal} & \textbf{Limpia} \\
+    \midrule
+    \raggedright Agilidad general
+      & \raggedright Baja: cambios lentos y engorrosos por la naturaleza monolítica y el
+        acoplamiento \parencite[8]{richards2015}
+      & \raggedright Alta: el núcleo se desarrolla y prueba aislado de dispositivos y bases de
+        datos \parencite{cockburn2005}
+      & \raggedright Alta: las reglas de negocio se prueban sin interfaz, base de datos ni
+        servidor \parencite[202]{martin2017}
+      \tabularnewline
+    \raggedright Facilidad de despliegue
+      & \raggedright Muy baja: un cambio de tres líneas obliga a redesplegar la unidad completa
+        \parencite[cap.~10]{richardsford2020}
+      & \raggedright Alta: cada adaptador es sustituible sin tocar el núcleo
+        \parencite{cockburn2005}
+      & \raggedright Alta: los detalles son \emph{plugins} reemplazables con mínimo esfuerzo
+        \parencite[209]{martin2017}
+      \tabularnewline
+    \raggedright Escalabilidad
+      & \raggedright Muy baja: despliegue monolítico y falta de modularidad arquitectónica
+        \parencite[9]{richards2015}; \parencite[cap.~10]{richardsford2020}
+      & \raggedright Alta: la partición por dominio permite escalar una capacidad sin arrastrar
+        la pila \parencite{palermo2008}
+      & \raggedright Alta: el núcleo no depende de la infraestructura que se escala
+        \parencite[203]{martin2017}
+      \tabularnewline
+    \bottomrule
+  \end{tabular}
+  \caption{Atributos de calidad: N-Capas frente a Hexagonal y Limpia. Las valoraciones de la
+    columna N-Capas son las puntuaciones publicadas en \textcite[8-9]{richards2015} y
+    \textcite[cap.~10]{richardsford2020}. Hexagonal y Limpia no están puntuadas en esas fuentes:
+    sus celdas son valoración propia, derivada de la Regla de Dependencia y de las propiedades
+    que las fuentes citadas en cada celda atribuyen a esas arquitecturas.}
+  \label{tab:p6-caracteristicas}
+\end{table}
+
+Las optimizaciones del estudiante no tocan ninguna de esas tres causas. Actúan sobre el
+\textbf{camino de las solicitudes}, no sobre la \textbf{dirección de las dependencias} —el
+negocio sigue dependiendo de la persistencia—, ni sobre la \textbf{unidad monolítica de
+despliegue} —un cambio sigue redesplegando todo—, ni sobre el \textbf{tipo de partición}: la
+N-Capas es una arquitectura técnicamente particionada, en la que el dominio (por ejemplo,
+\texttt{customer}) está disperso por todas las capas, de modo que “a domain-driven design
+approach does not work as well with the layered architecture style”
+\parencite[cap.~10]{richardsford2020}. Peor: abrir capas añade dependencias transversales, es
+decir, incrementa exactamente el acoplamiento que motiva las calificaciones bajas. El propio
+libro que documenta estas técnicas lo dice del rendimiento: puede paliarse “through caching,
+multithreading, and the like, but it is not a natural characteristic of this architecture style”
+\parencite[cap.~10]{richardsford2020}. Las capas abiertas son lo mismo: un parche que no es
+natural del estilo.
+
+Las arquitecturas de dominio atacan la raíz, porque \textbf{invierten la dirección de las
+dependencias}. La Regla de Dependencia de la Arquitectura Limpia es explícita: “Source code
+dependencies must point only inward, toward higher-level policies. Nothing in an inner circle
+can know anything at all about something in an outer circle” \parencite[203]{martin2017}, una
+regla que se aplica siempre, con independencia del sentido del flujo de control, y que cruza
+cada límite mediante el DIP \parencite[206]{martin2017}. En la Hexagonal de Cockburn, el núcleo
+define \emph{puertos} y los \emph{adaptadores} externos los implementan, con el objetivo
+explícito de que la aplicación se desarrolle y pruebe “in isolation from its eventual run-time
+devices and databases”, permaneciendo “blissfully ignorant of the nature of the input device”
+\parencite{cockburn2005}. En la Onion de Palermo, el Modelo de Dominio ocupa el centro, “only
+coupled to itself”, con las interfaces —por ejemplo, las de repositorio— en el núcleo y el
+comportamiento que toca bases de datos fuera \parencite{palermo2008}.
+
+De esa única decisión estructural se derivan los atributos exigidos:
+
+\begin{itemize}
+  \item \textbf{Agilidad.} Las reglas de negocio se prueban “without the UI, database, web
+        server, or any other external element” \parencite[202]{martin2017}: ciclos de prueba
+        cortos y deterministas. Y los cambios de detalle no se propagan: al quedar obsoleto un
+        elemento externo —base de datos, framework web—, “you can replace those obsolete
+        elements with a minimum of fuss” \parencite[209]{martin2017}. En N-Capas, en cambio, un
+        cambio menor en persistencia golpea a negocio y a presentación
+        \parencite[4]{richards2015}.
+  \item \textbf{Desplegabilidad.} Los detalles son \emph{plugins} del núcleo: sustituir o
+        desplegar un adaptador no obliga a tocar el dominio; en N-Capas, el cambio de tres
+        líneas redespliega la unidad entera \parencite[cap.~10]{richardsford2020};
+        \parencite[8]{richards2015}.
+  \item \textbf{Escalabilidad.} Al particionarse por dominio y no por capas técnicas, cada
+        capacidad de negocio puede evolucionar, probarse, desplegarse y escalarse sin arrastrar
+        la pila completa; en N-Capas, escalar una funcionalidad caliente equivale a escalar el
+        monolito entero \parencite[9]{richards2015}.
+\end{itemize}
+
+Y la palabra «inherentemente» del enunciado es exacta: la diferencia entre ambos estilos no es
+de grado sino de \textbf{dirección de las dependencias}, una propiedad definitoria y no un
+parámetro ajustable. Abrir una capa no invierte dependencia alguna: solo autoriza más aristas en
+la misma dirección hacia afuera. Para que una N-Capas cumpliera la Regla de Dependencia habría
+que mover las interfaces al núcleo y hacer que la infraestructura las implemente, es decir,
+reconstruirla como Hexagonal o Limpia. Por eso, ante requisitos de alta escalabilidad y
+agilidad, las arquitecturas de dominio no son «una optimización más» de la N-Capas: son la
+corrección de la causa que ninguna optimización de la N-Capas puede alcanzar.
+
+\subsection*{Conclusión}
+
+El estudiante acierta en que las técnicas existen y están documentadas, y falla en la
+conclusión. Las capas abiertas y el \emph{fast-lane reader} compran rendimiento local con la
+única moneda que la N-Capas tenía para el cambio controlado —el aislamiento—, institucionalizan
+el sinkhole que pretendían evitar (la capa vaciada queda como \emph{pass-through} permanente y
+sin incentivo para llenarse de lógica), y dejan intactas la naturaleza monolítica y el
+acoplamiento que causan las calificaciones bajas en agilidad, despliegue y escalabilidad. La
+regla del 80/20 es el veredicto: cuando esas técnicas dejan de ser excepción y se vuelven
+necesidad, el estilo en capas no es el adecuado. Lo que exigen la alta escalabilidad y la
+agilidad es estructural —dependencias apuntando hacia el dominio, detalles como \emph{plugins}
+reemplazables, núcleo probable en aislamiento— y eso es, por definición, lo que ofrecen la
+Hexagonal y la Limpia, y lo que la N-Capas no puede ofrecer «incluso con optimizaciones».
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Dirección causal del sinkhole.} El enunciado sugiere que las capas abiertas
+        «llevan» al sinkhole; las fuentes presentan la relación inversa: las capas abiertas se
+        proponen como reacción al sinkhole, con un \emph{trade-off} explícito
+        \parencite[7]{richards2015}; \parencite[cap.~10]{richardsford2020}. Para no contradecir
+        el enunciado, la respuesta expone el bucle completo —capas vacías, sinkhole, apertura
+        sancionada del rodeo, vaciado acelerado y aislamiento perdido—, que es la lectura fiel a
+        las fuentes y responde a la preocupación real del apartado: que la «solución» degenera
+        la arquitectura.
+  \item \textbf{Procedencia de la tabla~\ref{tab:p6-caracteristicas}.} El issue~\#11 exige una
+        tabla \texttt{booktabs} real con las puntuaciones de agilidad, desplegabilidad y
+        escalabilidad comparando N-Capas con Hexagonal y Limpia.
+        \textcite{richardsford2020} solo publican esas puntuaciones para los estilos que
+        catalogan: no puntúan la Hexagonal ni la Limpia. Atribuirles valores habría sido una
+        cita falsa, así que la columna de N-Capas reproduce las puntuaciones publicadas y las de
+        Hexagonal y Limpia se declaran, en el pie de la tabla, como valoración propia derivada
+        de las propiedades citadas celda a celda.
+  \item \textbf{Estrategia de citas de Richards y Ford (2020).} El PDF disponible en
+        \texttt{Bibliografias/} no conserva la paginación impresa al extraer el texto, así que
+        ese libro se cita por capítulo y sección (“Layers of Isolation”, “Other Considerations”,
+        “Architecture Characteristics Ratings”). \textcite{richards2015} y
+        \textcite{martin2017} sí se citan con página exacta: las de Richards se verificaron
+        contra los pies de página del propio reporte (numeración impresa del capítulo~1; en el
+        PDF local aparece desplazada por las páginas preliminares) y las de Martin se
+        contrastaron con las ya usadas en P4.
+  \item \textbf{Doble cita Richards (2015) y Richards y Ford (2020).} El seminario atribuye las
+        calificaciones a \textcite{richards2015}; \textcite{richardsford2020} es el tratamiento
+        ampliado del mismo autor principal. Se citó el primero para las calificaciones del
+        patrón y el segundo para el mecanismo de capas abiertas, el \emph{fast-lane reader} y la
+        partición técnica, por ser donde el tratamiento es más completo.
+  \item \textbf{DDD sin Evans.} El enunciado menciona «principios de DDD». Se sustentó con la
+        partición por dominio \parencite[cap.~10]{richardsford2020} y el dominio al centro
+        \parencite{palermo2008}; \parencite[203]{martin2017}, sin recurrir a Evans, que no
+        figura entre las fuentes consultadas para esta pregunta.
+  \item \textbf{Citas en inglés.} Se conservaron textuales en el idioma original, con la misma
+        convención del resto del documento. Donde el original contiene una errata (“it a good
+        indicator”), se corrigió con inserción editorial marcada: “it [is] a good indicator”.
+\end{itemize}
+
+\section*{Notas de investigación}
+
+\input{investigacion/p6-open-layers/notas}
+\endgroup
