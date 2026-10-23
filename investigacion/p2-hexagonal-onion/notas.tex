@@ -1,5 +1,4 @@
 % ============================================================
-% investigacion/p2-hexagonal-onion/notas.tex — INV-P2 (issue #4)
 % Integrante: Heily Rodríguez Rodríguez
 % Fragmento puro: se incluye desde preguntas/p2-simetria-hexagono/solucion.tex
 % mediante \input{investigacion/p2-hexagonal-onion/notas}.
@@ -81,14 +80,4 @@ Los conceptos se agrupan en dos tablas: la Arquitectura Hexagonal (Tabla~\ref{ta
 \end{itemize}
 \end{sloppypar}
 
-\section*{Notas de diseño}
 
-\paragraph{Las «4 capas» de Onion son un ejemplo, no una regla.} Los anillos \emph{Domain Model}, \emph{Domain Services} y \emph{Application Services} aparecen en el diagrama de la parte 1, pero el texto aclara que el número de capas del núcleo varía \citep{palermo2008}. Palermo cambia además los nombres en las entregas siguientes: \emph{Object Model} y \emph{Object Services} en la parte 2, y \emph{Business Logic} en el diagrama aplanado de la parte 3 \parencites[diagrama]{palermo2008b}[diagrama]{palermo2008c}. Lo invariante son los cuatro principios, no los nombres de los anillos.
-
-\paragraph{La diferencia entre simetría y jerarquía es de énfasis.} En Hexagonal todo lo externo se trata «igual» \citep[«Nature of the Solution»]{cockburn2005}, pero Onion también reúne en el anillo exterior la interfaz de usuario, la infraestructura y las pruebas \citep{palermo2008}: hacia fuera, también es simétrica, y su jerarquía está \emph{dentro} del núcleo. A su vez, la simetría de Hexagonal es una ficción deliberada, porque Cockburn reintroduce después la distinción entre puertos primarios y secundarios \citep[«The Left-Right Asymmetry»]{cockburn2005}. Hexagonal orienta el diseño de la frontera y Onion, la organización interna.
-
-\paragraph{Onion no hace explícitos los puertos primarios.} En CodeCampServer, el controlador depende directamente de las interfaces del núcleo inyectadas por el contenedor IoC \citep{palermo2008b}, y cualquier capa externa puede llamar a cualquier interna \citep{palermo2008c}. El énfasis de Onion está en el lado secundario, al contrario que MVC, que según Cockburn aplica la idea solo a los puertos primarios \citep[«Related Patterns»]{cockburn2005}.
-
-\paragraph{La forma del dibujo no es lo esencial.} Palermo aplana Onion como una pila y fuerza la N-Capas tradicional a una cebolla: la forma puede ser cualquiera, lo que cambia es la estructura. La N-Capas dibujada como cebolla deja la infraestructura en el centro \citep[texto y diagrama]{palermo2008c}.
-
-\paragraph{Fuentes.} Se usaron solo las dos fuentes del issue, Cockburn y la serie de Palermo. Las partes 2 y 3 de Palermo se declaran en \texttt{fuentes.bib} porque \texttt{core.bib} solo incluye la parte 1. No se citan los comentarios de lectores del final de la parte 3, porque no son de Palermo.

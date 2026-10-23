@@ -12,13 +12,9 @@
 
 ## Respuesta
 
-### ¿Por qué dividir por verbos o entidades provocó el *Kitty Problem*?
+### Por qué la división por verbos o entidades provocó el *Kitty Problem*
 
-El enunciado presenta el *Kitty Problem*: un requisito transversal, la entrega de gatitos, afecta a varios servicios ya existentes de un sistema de taxis (`TaxiUI`, `TaxiFinder`, `TaxiSelector`, etc.) y obliga a cambiarlos todos de forma coordinada[^1]. La pregunta pide:
-
-- (a) describir el problema y explicar por qué dividir el sistema en servicios basados en verbos o entidades funcionales (como `TaxiFinder` o `TaxiSelector`) llevó a él;
-- (b) explicar cómo, con los principios de DDD y de las arquitecturas Onion (Cebolla) y Clean (Limpia), podría haberse diseñado el sistema para que un cambio así afectara a un solo componente o servicio, y
-- (c) proponer una solución en la que componentes como `Kittens` y `Rides` se añadan como *plugins*, explicando cómo respeta el Principio de Abierto/Cerrado (OCP) y qué papel desempeñan los adaptadores.
+El *Kitty Problem* muestra cómo un requisito transversal, la entrega de gatitos, obliga a cambiar de forma coordinada todos los servicios de un sistema de taxis. Aunque el enunciado sitúa el ejemplo en *Fundamentals of Software Architecture* (Richards y Ford, 2020), en la bibliografía consultada el caso aparece en Martin (2017, cap. 27), que es la fuente que se cita en esta respuesta.
 
 Martin parte de un agregador de taxis, ya presentado en el capítulo sobre el Principio de Sustitución de Liskov, que conoce a muchos proveedores de taxis de una ciudad y permite a los clientes pedir viajes (Martin, 2017, pp. 80, 242). Para que fuera escalable, el sistema se construyó con muchos microservicios, y el personal se dividió en equipos pequeños, cada uno responsable de unos pocos servicios (Martin, 2017, p. 242):
 - `TaxiUI` atiende a los clientes, que piden taxis desde el móvil;
@@ -182,6 +178,3 @@ En conclusión, el *Kitty Problem* no se debió a usar servicios, sino a trazar 
 ## Referencias citadas
 
 Ver [`referencias.md`](referencias.md). Las claves BibTeX están en `core.bib`.
-
-[^1]: El enunciado sitúa el ejemplo en *Fundamentals of Software Architecture* (Richards y Ford, 2020). En la bibliografía consultada, el caso aparece en Martin (2017, cap. 27), que es la fuente que se cita en esta respuesta.
-

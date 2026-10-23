@@ -14,14 +14,7 @@
 
 ### División del sistema en contextos delimitados
 
-Una empresa de seguros necesita un sistema para gestionar pólizas de automóviles que interactúe con el departamento de siniestros, con el sistema de facturación de primas y con la aplicación que usan los ajustadores para evaluar daños en el lugar del accidente. Cada área usa su propia terminología: para un actuario la póliza es un contrato con cláusulas; para facturación, una fuente de ingresos; para un ajustador, un número de referencia. La pregunta pide explicar:
-
-- (a) cómo dividir el sistema en contextos delimitados (*bounded contexts*);
-- (b) cómo evitar que el modelo de «Póliza» se contamine con detalles de siniestros o de facturación;
-- (c) cómo se comunicarían esos contextos de manera desacoplada, y
-- (d) cómo se relaciona la solución con una arquitectura orientada al dominio (Onion o Clean) y con el «Adaptador de Servicio» de la Guía de Arquitectura N-Capas.
-
-La solución ingenua sería construir un único modelo de «Póliza» compartido por todas las áreas. Ese modelo acumularía cláusulas, planes de cobro y datos de peritaje, y cualquier cambio pedido por un área afectaría a todas las demás. Domain-Driven Design (DDD) propone lo contrario: expresar el modelo en el lenguaje de los expertos del negocio, el llamado *Lenguaje Ubicuo*, y está indicado precisamente para aplicaciones empresariales complejas (De la Torre et al., 2010, p. 21). Desde esta perspectiva, que «póliza» signifique tres cosas distintas no es un defecto que haya que corregir, sino la señal de que existen varios modelos legítimos.
+La solución ingenua sería construir un único modelo de «Póliza» compartido por todas las áreas. Ese modelo acumularía cláusulas, planes de cobro y datos de peritaje, y cualquier cambio pedido por un área afectaría a todas las demás. Domain-Driven Design (DDD) propone lo contrario: expresar el modelo en el lenguaje de los expertos del negocio, el llamado *Lenguaje Ubicuo*, y está indicado precisamente para aplicaciones empresariales complejas (De la Torre et al., 2010, p. 21). Desde esta perspectiva, que «póliza» signifique algo distinto para el actuario, para facturación y para el ajustador no es un defecto que haya que corregir, sino la señal de que existen varios modelos legítimos.
 
 El contexto delimitado es un concepto propuesto por Evans (como se citó en Richards y Ford, 2020, cap. 7): todo lo relativo a un dominio es visible dentro del contexto y opaco fuera de él. En vez de crear una única clase compartida por toda la organización, cada dominio define la suya y las diferencias se concilian en los puntos de integración (Richards y Ford, 2020, cap. 7). Para trazar las fronteras en el caso de la aseguradora se aplican cuatro criterios:
 
@@ -62,7 +55,7 @@ El aislamiento del modelo se consigue combinando cinco mecanismos.
 
 - **M4.** **Datos aislados.** Cada contexto tiene su propio almacenamiento y no se integra a través de esquemas compartidos (Richards y Ford, 2020, cap. 17).
 
-- **M5.** **Traducción en la frontera.** La información que llega de otro contexto entra solo a través de un componente que la convierte al modelo local. Los Agentes de Servicios externos de la Guía cumplen este papel: entre otras tareas, realizan mapeos básicos entre el formato de datos del servicio externo y el que usa la propia aplicación (De la Torre et al., 2010, pp. 108, 155). Un adaptador cumple la misma función en la Arquitectura Hexagonal: la aplicación interactúa con él sin conocer la naturaleza de lo que hay al otro lado (Cockburn, 2005).[^1]
+- **M5.** **Traducción en la frontera.** La información que llega de otro contexto entra solo a través de un componente que la convierte al modelo local. Los Agentes de Servicios externos de la Guía cumplen este papel: entre otras tareas, realizan mapeos básicos entre el formato de datos del servicio externo y el que usa la propia aplicación (De la Torre et al., 2010, pp. 108, 155). Un adaptador cumple la misma función en la Arquitectura Hexagonal: la aplicación interactúa con él sin conocer la naturaleza de lo que hay al otro lado (Cockburn, 2005). En la terminología original de DDD, este mecanismo de traducción defensiva se conoce como *Anti-Corruption Layer*; el término se menciona solo como orientación, porque no procede de las fuentes consultadas.
 
 ### Comunicación desacoplada entre contextos
 
@@ -106,7 +99,7 @@ La Figura 2 aplica esta estructura al contexto de Siniestros.
 
 > **Figura.** Estructura interna Onion/Clean del contexto de Siniestros. El Agente de Servicio es el único componente que conoce el protocolo y el formato de Suscripción. *(Diagrama TikZ en `solucion.tex`.)*
 
-**El Adaptador de Servicio.** Lo que el enunciado llama «Adaptador de Servicio» corresponde en la Guía a los *Agentes de Servicios externos*.[^2] Según la Guía, estos agentes:
+**El Adaptador de Servicio.** Lo que el enunciado llama «Adaptador de Servicio» corresponde en la Guía a los *Agentes de Servicios externos*. La Guía emplea además «Agente de Servicio» en otro sentido, para un componente de la capa de presentación que consume servicios distribuidos (De la Torre et al., 2010, p. 269); en esta respuesta, «Agente de Servicio» designa siempre a un agente de servicios externos. Según la Guía, estos agentes:
 - gestionan la semántica de comunicación con un servicio externo y mapean entre su formato de datos y el de la aplicación (De la Torre et al., 2010, p. 108);
 - aíslan las particularidades de ese servicio, de modo que, manteniendo ciertas interfaces, el servicio puede sustituirse por otro sin afectar al sistema (De la Torre et al., 2010, p. 58);
 - en aplicaciones grandes actúan como nivel de abstracción entre la capa de Dominio y los servicios remotos, con una interfaz homogénea. Conviene desacoplarlos mediante inversión de control, lo que permite simular los servicios externos con *fakes* durante el desarrollo y probar los propios agentes de forma unitaria (De la Torre et al., 2010, pp. 155–156).
@@ -181,7 +174,3 @@ La propia Guía advierte que, si una aplicación es sencilla, sus reglas de nego
 ## Referencias citadas
 
 Ver [`referencias.md`](referencias.md). Las claves BibTeX están en `core.bib`.
-
-[^1]: En la terminología original de DDD, este mecanismo de traducción defensiva se conoce como *Anti-Corruption Layer*. El término se menciona solo como orientación, porque no procede de las fuentes consultadas.
-[^2]: La Guía emplea además «Agente de Servicio» en otro sentido: un componente de la capa de presentación que consume servicios distribuidos (De la Torre et al., 2010, p. 269). En esta respuesta, «Agente de Servicio» designa siempre a un agente de servicios externos.
-

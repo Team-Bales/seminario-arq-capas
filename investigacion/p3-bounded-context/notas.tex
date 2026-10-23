@@ -1,10 +1,7 @@
 % ============================================================
-% investigacion/p3-bounded-context/notas.tex — INV-P3 (issue #6)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye desde preguntas/p3-ddd-bounded-context/solucion.tex
 % mediante \input{investigacion/p3-bounded-context/notas}.
-% Estructura del issue #6: \section*{Notas de investigación: …} + Síntesis +
-% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
 % Fuente de trabajo: notas.md (misma carpeta).
 % Citas: páginas impresas; Richards & Ford (2020), Cockburn (2005) y
 % Palermo (2008) no tienen paginación y se citan por capítulo/sección.
@@ -117,22 +114,4 @@ coreografía y desaconsejan las transacciones entre servicios
         fundamentan la respuesta al Kitty Problem.
 \end{itemize}
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Patrones del Context Map.} \textit{Anti-Corruption Layer},
-        \textit{Shared Kernel}, \textit{Customer/Supplier} y \textit{Open Host Service}
-        no aparecen en ninguna fuente de la bibliografía orientada. El aislamiento entre
-        contextos se fundamenta con los agentes de servicios externos y los adaptadores.
-  \item \textbf{La Guía no usa el término \emph{bounded context}.} Lo más cercano son
-        los Módulos, que parten \emph{un} modelo en lugar de separar modelos distintos.
-  \item \textbf{«Adaptador de Servicio» = agentes de servicios externos.} La Guía usa
-        además «Agente de Servicio» para un componente de la capa de presentación
-        \parencite[269]{delatorre2010}, que es otro concepto.
-  \item \textbf{Eventos del Dominio.} En la Guía articulan reglas \emph{dentro} de un
-        dominio \parencite[195--196]{delatorre2010}; la comunicación asíncrona entre
-        contextos se fundamenta con \textcite[caps.~14 y 17]{richardsford2020}.
-  \item \textbf{Cita de Evans.} El enunciado lo nombra, pero no se consultó su libro: se
-        cita de forma indirecta, a través de \textcite[cap.~7]{richardsford2020}.
-\end{itemize}
-\endgroup

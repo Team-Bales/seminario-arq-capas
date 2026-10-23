@@ -12,7 +12,15 @@
 Un equipo de desarrollo trabaja en un sistema de gestión de pedidos. La lógica de negocio principal reside en la clase \texttt{OrderProcessor}, que necesita comunicarse con un servicio externo de validación de direcciones. La implementación actual tiene una dependencia directa:
 
 \begin{center}
-\texttt{OrderProcessor} $\xrightarrow{\text{instancia y llama}}$ \texttt{AddressValidatorService} $\xrightarrow{\text{usa}}$ \texttt{HttpClient Library}
+\begin{tikzpicture}[font=\sffamily\small,
+    clase/.style={modulo, minimum width=3.9cm, font=\ttfamily\footnotesize, fill=blue!5, draw=blue!50!black},
+    ext/.style={modulo, minimum width=3.4cm, font=\ttfamily\footnotesize, fill=gray!10, draw=gray!60!black}]
+  \node[clase] (op)  at (0,0)    {OrderProcessor};
+  \node[clase] (avs) at (6.2,0)  {AddressValidatorService};
+  \node[ext]   (lib) at (11.9,0) {HttpLib};
+  \draw[dependencia] (op)  -- node[above, font=\sffamily\scriptsize] {instancia y llama} (avs);
+  \draw[dependencia] (avs) -- node[above, font=\sffamily\scriptsize] {usa} (lib);
+\end{tikzpicture}
 \end{center}
 
 Esta arquitectura viola los principios fundamentales de las arquitecturas Hexagonal, Limpia y Onion por las siguientes razones:
@@ -22,15 +30,15 @@ Esta arquitectura viola los principios fundamentales de las arquitecturas Hexago
 El DIP establece que \enquote{las dependencias del código fuente deben referirse solo a abstracciones, no a concreciones} \fuente{martin2017}{87}. En la implementación actual:
 
 \begin{enumerate}
-    \item \texttt{OrderProcessor} (política de alto nivel) depende directamente de \texttt{AddressValidatorService} (detalle de implementación concreto y volátil).
+    \item \texttt{OrderProcessor}, la política de alto nivel, depende directamente de un detalle de implementación concreto y volátil: \texttt{AddressValidatorService}.
     \item El servicio externo es inherentemente volátil: puede cambiar su API, su contrato, su disponibilidad, o ser reemplazado por otro proveedor.
-    \item Como señala \nombrefuente{martin2017} (p. 88): \enquote{Every change to an abstract interface corresponds to a change to its concrete implementations. Conversely, changes to concrete implementations do not always, or even usually, require changes to the interfaces that they implement. Therefore interfaces are less volatile than implementations.}
+    \item Como señala \citet[p.~88]{martin2017}: \enquote{Every change to an abstract interface corresponds to a change to its concrete implementations. Conversely, changes to concrete implementations do not always, or even usually, require changes to the interfaces that they implement. Therefore interfaces are less volatile than implementations.}
 \end{enumerate}
 
 \subsection*{Violación por arquitectura}
 
 \begin{itemize}
-    \item \textbf{Arquitectura Hexagonal:} La lógica de negocio (interior del hexágono) depende de un servicio externo (adaptador), invirtiendo la relación correcta. Los puertos (interfaces) deben definirse en el interior y los adaptadores (implementaciones) en el exterior; los adaptadores dependen de los puertos, no al revés \fuente{cockburn2005}.
+    \item \textbf{Arquitectura Hexagonal:} La lógica de negocio (interior del hexágono) depende de un servicio externo (adaptador), invirtiendo la relación correcta. Los puertos (interfaces) deben definirse en el interior y los adaptadores (implementaciones) en el exterior; los adaptadores dependen de los puertos, no al revés \citep[«Nature of the Solution»]{cockburn2005}.
     \item \textbf{Arquitectura Limpia:} Se viola la Regla de Dependencia: \enquote{Source code dependencies must point only inward, toward higher-level policies. Nothing in an inner circle can know anything at all about something in an outer circle} \fuente{martin2017}{203}. Las dependencias apuntan hacia afuera (hacia detalles volátiles) en lugar de hacia adentro (hacia políticas de alto nivel).
     \item \textbf{Arquitectura de Cebolla:} La dependencia se aleja del centro (Modelo de Dominio). En Onion todas las dependencias deben apuntar hacia el centro, y las capas externas deben implementar interfaces definidas en las capas internas \fuente{martin2017}{202}.
 \end{itemize}
@@ -44,10 +52,19 @@ La cadena \texttt{OrderProcessor} $\rightarrow$ \texttt{AddressValidatorService}
 El DIP y la Regla de Dependencia exigen que las dependencias del código fuente apunten hacia las abstracciones del núcleo:
 
 \begin{center}
-\texttt{OrderProcessor} $\xrightarrow{\text{usa}}$ \texttt{IAddressValidator} $\xleftarrow{\text{implementa}}$ \texttt{AddressValidatorService}
+\begin{tikzpicture}[font=\sffamily\small,
+    clase/.style={modulo, minimum width=3.9cm, font=\ttfamily\footnotesize, fill=blue!5, draw=blue!50!black},
+    puerto/.style={interfaz, minimum width=3.6cm, font=\ttfamily\itshape\footnotesize, draw=green!40!black, fill=green!8},
+    implementa/.style={-{Triangle[open, length=3mm, width=3mm]}, thick, dashed, shorten >=1pt, shorten <=1pt}]
+  \node[clase]  (op)  at (0,0)    {OrderProcessor};
+  \node[puerto] (iav) at (5.9,0)  {IAddressValidator};
+  \node[clase]  (avs) at (11.6,0) {HttpAddressValidatorAdapter};
+  \draw[dependencia] (op)  -- node[above, font=\sffamily\scriptsize] {usa} (iav);
+  \draw[implementa]  (avs) -- node[above, font=\sffamily\scriptsize] {implementa} (iav);
+\end{tikzpicture}
 \end{center}
 
-Tanto la política de alto nivel (\texttt{OrderProcessor}) como el detalle (\texttt{AddressValidatorService}) dependen de la misma abstracción (\texttt{IAddressValidator}), definida en el núcleo. Nótese que el \textit{flujo de control} se mantiene —\texttt{OrderProcessor} sigue solicitando la validación—; lo que se invierte es la \textit{dependencia del código fuente}, que ahora apunta desde el detalle hacia la abstracción \fuente{martin2017}{87,91}.
+La política de alto nivel y el detalle dependen ahora de la misma abstracción, definida en el núcleo: \texttt{OrderProcessor} usa \texttt{IAddressValidator} y \texttt{AddressValidatorService} la implementa. Nótese que el \textit{flujo de control} se mantiene —\texttt{OrderProcessor} sigue solicitando la validación—; lo que se invierte es la \textit{dependencia del código fuente}, que ahora apunta desde el detalle hacia la abstracción \fuente{martin2017}{87, 91}.
 
 \section{b) Rediseño con inversión de dependencias}
 
@@ -82,38 +99,42 @@ Para alinear el diseño con los principios de Clean Architecture, Arquitectura H
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        node distance=1.5cm,
-        >={Stealth[length=3mm]},
-        modulo/.style={rectangle, draw=blue!60, fill=blue!5, thick, rounded corners, minimum width=3cm, minimum height=1.2cm, align=center},
-        interfaz/.style={rectangle, draw=green!60, fill=green!5, thick, rounded corners, minimum width=3.5cm, minimum height=1.2cm, align=center},
-        dependencia/.style={->, thick}
-    ]
-        % ANTES: arquitectura actual (violación)
-        \node[modulo] (op_before) {\texttt{OrderProcessor}};
-        \node[modulo, right=of op_before] (avs_before) {\texttt{AddressValidatorService}};
-        \node[modulo, right=of avs_before] (http_before) {\texttt{HttpClient Library}};
-        
-        \draw[dependencia] (op_before) -- node[above] {instancia y llama} (avs_before);
-        \draw[dependencia] (avs_before) -- node[above] {usa} (http_before);
-        
-        % Etiqueta "ANTES"
-        \node[above=0.5cm of op_before, font=\bfseries\small, red] {ANTES (violación DIP)};
-        
-        % DESPUÉS: arquitectura refactorizada (debajo)
-        \node[modulo, below=3cm of op_before] (op_after) {\texttt{OrderProcessor}};
-        \node[interfaz, below=of op_after] (iav_after) {\texttt{IAddressValidator}\\(puerto)};
-        \node[modulo, right=3cm of iav_after] (avs_after) {\texttt{AddressValidatorService}\\(adaptador)};
-        \node[modulo, below=of avs_after] (http_after) {\texttt{HttpClient Library}};
-        
-        \draw[dependencia] (op_after) -- node[left] {usa} (iav_after);
-        \draw[dependencia, dashed] (avs_after) -- node[above] {implementa} (iav_after);
-        \draw[dependencia] (avs_after) -- node[right] {usa} (http_after);
-        
-        % Etiqueta "DESPUÉS"
-        \node[above=0.5cm of op_after, font=\bfseries\small, green!60!black] {DESPUÉS (DIP cumplido)};
+    \begin{tikzpicture}[font=\sffamily\small,
+        clase/.style={modulo, minimum width=3.9cm, minimum height=1.05cm, font=\ttfamily\footnotesize, fill=blue!5, draw=blue!50!black},
+        puerto/.style={interfaz, minimum width=3.9cm, minimum height=1.05cm, font=\ttfamily\itshape\footnotesize, draw=green!40!black, fill=green!8},
+        ext/.style={modulo, minimum width=3.4cm, minimum height=1.05cm, font=\ttfamily\footnotesize, fill=gray!10, draw=gray!60!black},
+        implementa/.style={-{Triangle[open, length=3mm, width=3mm]}, thick, dashed, shorten >=1pt, shorten <=1pt},
+        etiqueta/.style={font=\sffamily\scriptsize, fill=white, inner sep=1.5pt},
+        titulo/.style={font=\sffamily\small\bfseries, anchor=west},
+        zona/.style={rounded corners=6pt, thick},
+        nombrezona/.style={font=\sffamily\scriptsize\bfseries, anchor=north west}]
+
+        % ---------- (a) ANTES ----------
+        \node[titulo, red!60!black] at (-2.1,1.35) {(a) Antes: la política depende del detalle};
+        \node[clase] (op1)  at (0,0)    {OrderProcessor};
+        \node[clase] (avs1) at (6.2,0)  {AddressValidatorService};
+        \node[ext]   (lib1) at (11.9,0) {HttpLib};
+        \draw[dependencia, red!60!black] (op1)  -- node[etiqueta, above=2pt] {instancia y llama} (avs1);
+        \draw[dependencia] (avs1) -- node[etiqueta, above=2pt] {usa} (lib1);
+
+        % ---------- (b) DESPUÉS ----------
+        \node[titulo, green!35!black] at (-2.1,-1.65) {(b) Después: el detalle depende de la abstracción};
+        % Zonas
+        \draw[zona, draw=blue!40!black, fill=blue!3]  (-2.25,-2.15) rectangle (2.25,-6.35);
+        \node[nombrezona, blue!40!black] at (-2.15,-2.2) {NÚCLEO (dominio)};
+        \draw[zona, draw=gray!55!black, fill=gray!4]   (3.6,-4.2) rectangle (14.0,-6.35);
+        \node[nombrezona, gray!40!black] at (3.6,-4.25) {INFRAESTRUCTURA (exterior del hexágono)};
+        % Nodos
+        \node[clase]  (op2)  at (0,-3.35)   {OrderProcessor};
+        \node[puerto] (iav)  at (0,-5.45)   {IAddressValidator\\[-1pt]{\sffamily\upshape\scriptsize puerto}};
+        \node[clase]  (avs2) at (6.4,-5.45) {HttpAddressValidatorAdapter\\[-1pt]{\sffamily\scriptsize adaptador}};
+        \node[ext]    (lib2) at (12.1,-5.45) {HttpLib};
+        % Dependencias
+        \draw[dependencia] (op2) -- node[etiqueta, right=2pt] {usa} (iav);
+        \draw[implementa]  (avs2) -- node[etiqueta, above=2pt] {implementa} (iav);
+        \draw[dependencia] (avs2) -- node[etiqueta, above=2pt] {usa} (lib2);
     \end{tikzpicture}
-    \caption{Dependencias antes (violación) y después (inversión): ambas apuntan a la abstracción del núcleo}
+    \caption{Dependencias del código fuente antes y después de la inversión. En (a) la lógica de negocio depende de un detalle concreto; en (b) tanto \texttt{OrderProcessor} como el adaptador dependen de la interfaz definida en el núcleo, y la única dependencia que cruza la frontera apunta hacia dentro. \texttt{HttpAddressValidatorAdapter} es el \texttt{AddressValidatorService} original rediseñado como adaptador.}
     \label{fig:dip-before-after}
 \end{figure}
 
@@ -156,16 +177,9 @@ El diseño refactorizado confina la volatilidad a un único punto del sistema:
 
 \subsection*{Principio subyacente}
 
-Como establece \nombrefuente{martin2017} (p. 202), una característica fundamental de estas arquitecturas es ser \textbf{Testable}: \enquote{The business rules can be tested without the UI, database, web server, or any other external element.} La inversión de dependencia es el mecanismo que hace esto posible.
+Como establece \citet[p.~202]{martin2017}, una característica fundamental de estas arquitecturas es ser \textbf{Testable}: \enquote{The business rules can be tested without the UI, database, web server, or any other external element.} La inversión de dependencia es el mecanismo que hace esto posible.
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-    \item \textbf{Interfaz \texttt{IAddressValidator} vs \texttt{AddressValidatorPort}:} Se eligió \texttt{IAddressValidator} por claridad didáctica; en Hexagonal estricto el término \textit{Puerto} (\texttt{AddressValidatorPort}) refleja mejor el contrato arquitectónico. Ambas son equivalentes.
-    \item \textbf{Inyección por constructor:} Preferida sobre \textit{setter injection} o \textit{service locator} para garantizar inmutabilidad de la dependencia y fallo rápido si falta la implementación (consistente con Abstract Factory, \fuente{martin2017}{89}).
-    \item \textbf{Distinción flujo de control vs dependencia de código fuente:} El inciso a) pide la dirección de las \textit{dependencias del código fuente}. Se hizo explícito que el flujo de control no se invierte (\texttt{OrderProcessor} sigue llamando a la validación); lo que se invierte es la dependencia, que pasa a apuntar hacia la abstracción del núcleo. Se descartó la lectura de que \enquote{el servicio debe llamar al procesador}, que confunde flujo de control con dependencia.
-    \item \textbf{Capa de infraestructura para \texttt{AddressValidatorService}:} El adaptador HTTP es un detalle volátil; su lugar natural es la capa más externa, donde cambios de tecnología (REST $\to$ gRPC, cambio de librería HTTP) no impactan el núcleo.
-\end{itemize}
 
 \section*{Notas de investigación}
 

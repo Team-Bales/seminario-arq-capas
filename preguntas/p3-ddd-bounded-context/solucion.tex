@@ -1,17 +1,13 @@
 % =============================================================================
-% preguntas/p3-ddd-bounded-context/solucion.tex — P3 (issue #5)
 % Integrante: Ernesto A. Soler Choong
 % Fragmento puro: se incluye con \include desde SemArq1_TeamBales.tex.
 % Sin preámbulo: no declara clase de documento, inicio de documento ni paquetes.
 % Fuente de trabajo: solucion.md (misma carpeta).
-% Estructura del issue #5: \chapter con el título oficial + 4 \section (una por
-% apartado del enunciado) + Notas de diseño + Notas de investigación.
 % Citas: biblatex con páginas impresas; Richards & Ford (2020), Cockburn (2005)
 % y Palermo (2008) no tienen paginación y se citan por capítulo/sección.
 % Claves usadas, todas de core.bib: martin2017, cockburn2005, delatorre2010,
 % richardsford2020, palermo2008.
 % Paquetes: los del preámbulo del #13 (booktabs, enumitem, tikz) más listings,
-% pedido para preamble.tex en el issue #13.
 % =============================================================================
 
 % --- Definiciones auxiliares (no cargan paquetes). Son globales; son idénticas a
@@ -40,29 +36,14 @@
 \section{División del sistema en contextos delimitados}
 \label{sec:p3-division}
 
-Una empresa de seguros necesita un sistema para gestionar pólizas de automóviles que
-interactúe con el departamento de siniestros, con el sistema de facturación de primas y
-con la aplicación que usan los ajustadores para evaluar daños en el lugar del accidente.
-Cada área usa su propia terminología: para un actuario la póliza es un contrato con
-cláusulas; para facturación, una fuente de ingresos; para un ajustador, un número de
-referencia. La pregunta pide explicar:
-
-\begin{enumerate}[label=(\alph*)]
-  \item cómo dividir el sistema en contextos delimitados (\textit{bounded contexts});
-  \item cómo evitar que el modelo de «Póliza» se contamine con detalles de
-        siniestros o de facturación;
-  \item cómo se comunicarían esos contextos de manera desacoplada, y
-  \item cómo se relaciona la solución con una arquitectura orientada al dominio (Onion o
-        Clean) y con el «Adaptador de Servicio» de la Guía de Arquitectura N-Capas.
-\end{enumerate}
-
 La solución ingenua sería construir un único modelo de «Póliza» compartido por
 todas las áreas. Ese modelo acumularía cláusulas, planes de cobro y datos de peritaje, y
 cualquier cambio pedido por un área afectaría a todas las demás. Domain-Driven Design
 (DDD) propone lo contrario: expresar el modelo en el lenguaje de los expertos del
 negocio, el llamado \emph{Lenguaje Ubicuo}, y está indicado precisamente para
 aplicaciones empresariales complejas \parencite[21]{delatorre2010}. Desde esta
-perspectiva, que «póliza» signifique tres cosas distintas no es un defecto que
+perspectiva, que «póliza» signifique algo distinto para el actuario, para facturación y
+para el ajustador no es un defecto que
 haya que corregir, sino la señal de que existen varios modelos legítimos.
 
 El contexto delimitado es un concepto propuesto por Evans (como se citó en
@@ -204,10 +185,9 @@ El aislamiento del modelo se consigue combinando cinco mecanismos.
         la propia aplicación \parencite[108, 155]{delatorre2010}. Un adaptador cumple la
         misma función en la Arquitectura Hexagonal: la aplicación interactúa con él sin
         conocer la naturaleza de lo que hay al otro lado
-        \parencite{cockburn2005}.\footnote{En la terminología original de DDD, este
-        mecanismo de traducción defensiva se conoce como \textit{Anti-Corruption Layer}.
-        El término se menciona solo como orientación, porque no procede de las fuentes
-        consultadas.}
+        \parencite{cockburn2005}. En la terminología original de DDD, este mecanismo de
+        traducción defensiva se conoce como \textit{Anti-Corruption Layer}; el término se
+        menciona solo como orientación, porque no procede de las fuentes consultadas.
 \end{enumerate}
 
 \section{Comunicación desacoplada entre contextos}
@@ -457,10 +437,10 @@ La Figura~\ref{fig:p3-cebolla} aplica esta estructura al contexto de Siniestros.
 
 \paragraph{El Adaptador de Servicio.}
 Lo que el enunciado llama «Adaptador de Servicio» corresponde en la Guía a los
-\emph{Agentes de Servicios externos}.\footnote{La Guía emplea además
-«Agente de Servicio» en otro sentido: un componente de la capa de presentación
-que consume servicios distribuidos \parencite[269]{delatorre2010}. En esta respuesta,
-«Agente de Servicio» designa siempre a un agente de servicios externos.} Según la Guía, estos agentes:
+\emph{Agentes de Servicios externos}. La Guía emplea además «Agente de Servicio» en otro
+sentido, para un componente de la capa de presentación que consume servicios distribuidos
+\parencite[269]{delatorre2010}; en esta respuesta, «Agente de Servicio» designa siempre a un
+agente de servicios externos. Según la Guía, estos agentes:
 \begin{itemize}
   \item gestionan la semántica de comunicación con un servicio externo y mapean entre su
         formato de datos y el de la aplicación \parencite[108]{delatorre2010};
@@ -568,24 +548,7 @@ peritaje que evolucionan de forma independiente son justamente el escenario en e
 división en contextos delimitados, comunicados por eventos y protegidos por Agentes de
 Servicios externos, aporta más valor que coste.
 
-\section*{Notas de diseño}
 
-\begin{itemize}
-  \item \textbf{Cuatro contextos, con Peritaje separado de Siniestros.} Se justifica por
-        lenguaje, ausencia de transacción compartida y características operativas
-        distintas; la alternativa de integrarlo se discute en la
-        Sección~\ref{sec:p3-division}.
-  \item \textbf{Una única interacción síncrona.} Se reserva para la verificación de
-        cobertura; su coste y su mitigación se analizan en la
-        Sección~\ref{sec:p3-valoracion}.
-  \item \textbf{Evans se cita de forma indirecta.} Su libro no forma parte de la
-        bibliografía orientada; el concepto se toma de \textcite[cap.~7]{richardsford2020}.
-  \item \textbf{Patrones del \textit{Context Map} fuera del alcance.} No aparecen en la
-        bibliografía consultada; el aislamiento entre contextos se fundamenta con los
-        Agentes de Servicios externos y los adaptadores.
-  \item \textbf{«Adaptador de Servicio» = «Agentes de Servicios externos».} El término del
-        enunciado no aparece en la Guía; se usa el nombre que emplea la propia Guía.
-\end{itemize}
 
 \section*{Notas de investigación}
 \input{investigacion/p3-bounded-context/notas}
