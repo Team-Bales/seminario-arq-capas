@@ -1,0 +1,175 @@
+% =============================================================================
+% investigacion/p6-open-layers/notas.tex — INV-P6 (issue #12)
+% Integrante: Enrique A Gonzalez Moreira
+% Fragmento puro: se incluye desde preguntas/p6-ncapas-calidad/solucion.tex
+% mediante \input{investigacion/p6-open-layers/notas}.
+% Estructura del issue #12: \section*{Notas de investigación: …} + Síntesis +
+% Conceptos clave (tabla booktabs) + Puntos de conexión + Notas de diseño.
+% Fuente de trabajo: notas.md (misma carpeta).
+% Citas: páginas impresas de Richards (2015) y Martin (2017); Richards y Ford
+% (2020) no conserva paginación al extraer el texto del PDF y se cita por
+% capítulo; Cockburn (2005) y Palermo (2008) son web sin paginación.
+% Todas las claves están en core.bib (richards2015, richardsford2020,
+% martin2017, cockburn2005, palermo2008): fuentes.bib no declara nada.
+% Comillas: se usan comillas tipográficas literales, no \enquote, para no
+% depender de csquotes (no está en la lista de paquetes de preamble.tex, #13).
+% =============================================================================
+
+% Grupo local: \emergencystretch evita líneas desbordadas sin afectar a otros capítulos.
+\begingroup\emergencystretch=3em \hbadness=2000
+\section*{Notas de investigación: Open Layers, Sinkhole Anti-pattern y atributos de calidad en N-Capas}
+
+\section{Síntesis}
+
+La arquitectura N-Capas organiza el sistema en capas horizontales en las que cada capa conoce
+únicamente a la inmediatamente inferior. Una capa es \textbf{cerrada} cuando ninguna solicitud
+puede saltársela —toda petición debe atravesarla para alcanzar la siguiente— y \textbf{abierta}
+cuando sí puede evitarse, accediendo directamente a una capa más profunda
+\parencite[3]{richards2015}. Las capas cerradas son las que materializan el \emph{aislamiento de
+capas}: los cambios realizados en una capa no impactan a los componentes de las demás mientras
+se respeten los contratos, de modo que cada capa es independiente y conoce poco o nada del
+interior de las otras \parencite[3-4]{richards2015}.
+
+Abrir una capa compra rendimiento a costa de ese aislamiento. El caso típico es el
+\emph{fast-lane reader}: se declaran abiertas las capas de negocio y persistencia para que la
+presentación lea directamente la base de datos en consultas simples de recuperación
+\parencite[cap.~10]{richardsford2020}. El precio es un acoplamiento transversal —un cambio en
+persistencia pasa a impactar a la vez a negocio y a presentación— y una arquitectura
+descrita como frágil y cara de cambiar \parencite[4]{richards2015}. Por eso la decisión es
+sobre todo de gobernanza: no documentar ni comunicar qué capas son abiertas y cuáles cerradas,
+y por qué, produce arquitecturas acopladas y frágiles, difíciles de probar, mantener y desplegar
+\parencite[5]{richards2015}.
+
+El \emph{architecture sinkhole anti-pattern} aparece cuando las solicitudes atraviesan las capas
+como simple \emph{pass-through}, sin que ninguna aporte lógica de negocio: el coste es
+instanciación y procesamiento innecesarios, con impacto en memoria y rendimiento
+\parencite[cap.~10]{richardsford2020}. Importa la dirección causal: las fuentes no presentan las
+capas abiertas como causa del sinkhole, sino como reacción propuesta cuando el sinkhole domina
+el tráfico, con el aviso explícito de que entonces será más difícil controlar el cambio por la
+falta de aislamiento \parencite[7]{richards2015}. La \textbf{regla del 80/20} es el criterio de
+diagnóstico: es normal que en torno al 20\,\% de las peticiones sean \emph{pass-through} y el
+80\,\% porten lógica, y si la proporción se invierte eso indica que la arquitectura en capas no
+es el estilo correcto para ese dominio \parencite[7]{richards2015}.
+
+Las calificaciones bajas de la N-Capas en agilidad, facilidad de despliegue y escalabilidad no
+son accidentales: proceden de su naturaleza monolítica y del acoplamiento entre componentes
+\parencite[8-9]{richards2015}. Para requisitos de alta escalabilidad y agilidad, la Hexagonal y
+la Limpia son estructuralmente más adecuadas porque invierten la dirección de las dependencias:
+el núcleo declara los puertos y la infraestructura los implementa \parencite{cockburn2005}, con
+dependencias que apuntan solo hacia adentro \parencite[203]{martin2017} y un dominio que no se
+acopla más que a sí mismo \parencite{palermo2008}.
+
+\section{Conceptos clave}
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.22\linewidth}p{0.46\linewidth}p{0.24\linewidth}@{}}
+    \toprule
+    \textbf{Concepto} & \textbf{Definición} & \textbf{Fuente} \\
+    \midrule
+    \raggedright Capa cerrada
+      & \raggedright Capa que no puede saltarse: toda solicitud debe atravesarla para llegar a
+        la capa inferior
+      & \raggedright \textcite[3]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Capa abierta
+      & \raggedright Capa que una solicitud puede evitar, accediendo directamente a una capa más
+        profunda
+      & \raggedright \textcite[3]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Aislamiento de capas
+      & \raggedright Los cambios en una capa no impactan a las demás mientras se mantengan los
+        contratos entre capas
+      & \raggedright \textcite[3-4]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Gobernanza de las capas abiertas
+      & \raggedright No documentar qué capas son abiertas o cerradas produce arquitecturas
+        acopladas y frágiles, difíciles de probar, mantener y desplegar
+      & \raggedright \textcite[5]{richards2015} \tabularnewline
+    \raggedright \emph{Fast-lane reader}
+      & \raggedright Declarar abiertas negocio y persistencia para que la presentación lea
+        directamente la base de datos en consultas simples de alto volumen
+      & \raggedright \textcite[cap.~10]{richardsford2020} \tabularnewline
+    \raggedright \emph{Architecture sinkhole anti-pattern}
+      & \raggedright Solicitudes que atraviesan las capas como \emph{pass-through}, sin lógica
+        en ninguna, con coste de instanciación y procesamiento
+      & \raggedright \textcite[7]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Regla del 80/20
+      & \raggedright Si en torno al 80\,\% de las peticiones son \emph{pass-through}, el estilo
+        en capas no es el adecuado para ese dominio
+      & \raggedright \textcite[7]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Partición técnica frente a partición por dominio
+      & \raggedright En N-Capas el dominio queda disperso entre capas técnicas, por lo que un
+        enfoque dirigido por el dominio encaja mal
+      & \raggedright \textcite[cap.~10]{richardsford2020} \tabularnewline
+    \raggedright Calificaciones de la N-Capas
+      & \raggedright Agilidad y facilidad de despliegue bajas por la naturaleza monolítica y el
+        acoplamiento; escalabilidad baja por la misma razón
+      & \raggedright \textcite[8-9]{richards2015}; \textcite[cap.~10]{richardsford2020}
+        \tabularnewline
+    \raggedright Regla de Dependencia
+      & \raggedright Las dependencias del código fuente apuntan solo hacia adentro, hacia las
+        políticas de mayor nivel
+      & \raggedright \textcite[203]{martin2017} \tabularnewline
+    \raggedright Testabilidad del núcleo
+      & \raggedright Las reglas de negocio se prueban sin interfaz de usuario, base de datos ni
+        servidor
+      & \raggedright \textcite[202]{martin2017} \tabularnewline
+    \raggedright Puertos y adaptadores; dominio al centro
+      & \raggedright El núcleo declara los puertos y la infraestructura los implementa; el
+        Modelo de Dominio no se acopla más que a sí mismo
+      & \raggedright \textcite{cockburn2005}; \textcite{palermo2008} \tabularnewline
+    \bottomrule
+  \end{tabular}
+  \caption{Conceptos clave de la investigación INV-P6.}
+  \label{tab:inv-p6-conceptos}
+\end{table}
+
+\section{Puntos de conexión con las preguntas}
+
+\begin{itemize}
+  \item \textbf{P6, primer apartado:} capa cerrada frente a capa abierta y aislamiento de capas
+        dan el mecanismo exacto por el que abrir una capa degrada la mantenibilidad
+        \parencite[3-5]{richards2015}.
+  \item \textbf{P6, segundo apartado:} el sinkhole y la regla del 80/20 permiten mostrar que la
+        apertura de capas es reacción al antipatrón, no su causa, y que la regla es un
+        diagnóstico de encaje del estilo, no una perilla de optimización
+        \parencite[7]{richards2015}.
+  \item \textbf{P6, tercer apartado:} las calificaciones bajas \parencite[8-9]{richards2015} y
+        la partición técnica \parencite[cap.~10]{richardsford2020} se contraponen a la inversión
+        de dependencias de la Hexagonal y la Limpia \parencite[203]{martin2017}.
+  \item \textbf{P1 y P2:} el mismo contraste N-Capas frente a Hexagonal/Onion sostiene el
+        análisis de \emph{trade-offs} de P1 y la comparación de simetría de P2.
+\end{itemize}
+
+\section*{Notas de diseño}
+
+\begin{itemize}
+  \item \textbf{Dirección causal del sinkhole.} El enunciado de P6 sugiere que las capas
+        abiertas llevan al sinkhole; las fuentes dicen lo inverso: son la reacción propuesta
+        cuando el sinkhole domina \parencite[7]{richards2015}. La investigación documenta el
+        bucle completo —capas vacías, sinkhole, apertura sancionada del rodeo, vaciado
+        acelerado— para que la respuesta pueda ser fiel a las fuentes sin contradecir el
+        enunciado.
+  \item \textbf{Paginación de Richards y Ford (2020).} El PDF de \texttt{Bibliografias/} no
+        conserva la paginación impresa al extraer el texto, así que ese libro se cita por
+        capítulo y sección. Las páginas de \textcite{richards2015} se verificaron contra la
+        numeración impresa del capítulo~1, que en el PDF local aparece desplazada por las
+        páginas preliminares.
+  \item \textbf{Doble cita de Richards.} \textcite{richards2015} aporta las calificaciones del
+        patrón y \textcite{richardsford2020} el tratamiento ampliado del mismo autor principal
+        (capas abiertas, \emph{fast-lane reader}, partición técnica). Se citan juntos donde
+        coinciden y por separado donde cada uno es más explícito.
+  \item \textbf{De la Torre Llorente y otros (2010).} Figura en \texttt{fuentes.md} como
+        contexto del seminario sobre N-Capas orientada al dominio, pero no aporta ninguna
+        afirmación de estas notas, así que no se cita.
+  \item \textbf{DDD sin Evans.} El enunciado menciona principios de DDD. Se sostienen con la
+        partición por dominio \parencite[cap.~10]{richardsford2020} y el dominio al centro
+        \parencite{palermo2008}, sin recurrir a Evans, que no figura en la bibliografía
+        consultada para esta investigación.
+\end{itemize}
+\endgroup
