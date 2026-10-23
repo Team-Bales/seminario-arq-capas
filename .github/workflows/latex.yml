@@ -1,0 +1,34 @@
+name: LaTeX CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificación de convenciones LaTeX
+        run: bash scripts/verificar-latex.sh
+
+      - name: Compilar PDF (latexmk)
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: SemArq1_TeamBales.tex
+          compiler: latexmk
+          args: -pdf -file-line-error -halt-on-error
+
+      - name: ChkTex (solo reporte, no bloquea)
+        continue-on-error: true
+        run: chktex -wall SemArq1_TeamBales.tex || true
+
+      - name: Subir PDF como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SemArq1_TeamBales.pdf
+          path: SemArq1_TeamBales.pdf

@@ -1,0 +1,25 @@
+# Extensiones LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+_minted-*
+
+# PDF generado (salvo la versión final de entrega)
+*.pdf
+!SemArq1_TeamBales.pdf
+
+# Material con derechos de autor: nunca se sube (repositorio público)
+bibliografia/

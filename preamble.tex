@@ -1,0 +1,137 @@
+% ============================================================
+% preamble.tex — Preámbulo compartido de SemArq1_TeamBales
+% Los fragmentos (solucion.tex, notas.tex) NO cargan paquetes:
+% todo lo que necesiten se carga aquí.
+% ============================================================
+
+% --- Página: márgenes de 2,5 cm (la portada alinea su texto con este margen) ---
+\usepackage[margin=2.5cm]{geometry}
+
+% --- Codificación y fuentes (ATS: tildes extraíbles con pdftotext) ---
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% --- Idioma ---
+% es-nolists: babel no redefine las listas (enumitem las controla).
+% es-tabla:   «Tabla» en lugar de «Cuadro».
+\usepackage[spanish, es-nolists, es-tabla]{babel}
+\usepackage{csquotes}
+\addto\captionsspanish{\renewcommand{\contentsname}{Índice}}
+
+% --- Bibliografía: autor-año, una sola lista final ---
+\usepackage[backend=biber, style=authoryear, natbib=true]{biblatex}
+\addbibresource{core.bib}
+% Fuentes nuevas de cada pregunta e investigación (solo si el archivo existe).
+\newcommand{\bibsiexiste}[1]{\IfFileExists{#1}{\addbibresource{#1}}{}}
+\bibsiexiste{preguntas/p1-trade-offs/referencias.bib}
+\bibsiexiste{preguntas/p2-simetria-hexagono/referencias.bib}
+\bibsiexiste{preguntas/p3-ddd-bounded-context/referencias.bib}
+\bibsiexiste{preguntas/p4-inversion-dependencias/referencias.bib}
+\bibsiexiste{preguntas/p5-kitty-problem/referencias.bib}
+\bibsiexiste{preguntas/p6-ncapas-calidad/referencias.bib}
+\bibsiexiste{investigacion/p1-regla-dependencia/fuentes.bib}
+\bibsiexiste{investigacion/p2-hexagonal-onion/fuentes.bib}
+\bibsiexiste{investigacion/p3-bounded-context/fuentes.bib}
+\bibsiexiste{investigacion/p4-dip-interfaces/fuentes.bib}
+\bibsiexiste{investigacion/p5-kitty-ocp/fuentes.bib}
+\bibsiexiste{investigacion/p6-open-layers/fuentes.bib}
+
+% --- Matemáticas, tablas, figuras y código ---
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+% babel: evita el choque entre los atajos de babel-spanish (< y >) y las flechas de TikZ.
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, babel}
+
+% --- Microtipografía: mejora el ajuste de las líneas (texto real, sin efecto en ATS) ---
+\usepackage{microtype}
+
+% --- Hipervínculos (al final, como recomienda hyperref) ---
+\usepackage{hyperref}
+
+% Estilos compartidos de diagramas (copiables por P3 y P4)
+\tikzset{
+  bloque/.style={rectangle, draw, thick, minimum width=2.4cm, minimum height=1.1cm, align=center, font=\sffamily\small},
+  flecha/.style={-{Stealth[length=3mm]}, thick, shorten >=1pt, shorten <=1pt},
+  capa/.style={rectangle, draw=gray!60, thick, rounded corners, minimum width=3.2cm, minimum height=1.6cm, align=center, font=\sffamily\footnotesize, fill=gray!8},
+  contexto/.style={draw, thick, rounded corners=4pt, minimum width=4cm, minimum height=2.6cm, align=center, font=\sffamily\small, fill=blue!6},
+  linea-integracion/.style={-{Stealth}, thick, dashed},
+  acl/.style={rectangle, draw, thick, minimum width=2.6cm, minimum height=1cm, align=center, font=\sffamily\footnotesize, fill=orange!15},
+  dependencia/.style={-{Latex[length=2.5mm]}, thick, shorten >=1pt, shorten <=1pt},
+  modulo/.style={rectangle, draw, thick, minimum width=2.8cm, minimum height=0.9cm, align=center, font=\sffamily\small},
+  interfaz/.style={rectangle, draw, thick, dashed, minimum width=2.8cm, minimum height=0.9cm, align=center, font=\sffamily\small\itshape, fill=yellow!12},
+}
+
+% Ajustes de composición
+% - \emergencystretch: permite repartir más espacio en líneas con palabras que no se
+%   pueden cortar (p. ej. nombres de clases en \texttt), en vez de salirse del margen.
+% - biburl*penalty: permite cortar las URL largas de la bibliografía.
+\setlength{\emergencystretch}{3em}
+% - \tolerance: acepta líneas algo más espaciadas antes que dejar una que se salga del margen.
+\tolerance=1000
+\setcounter{biburlnumpenalty}{100}
+\setcounter{biburlucpenalty}{100}
+\setcounter{biburllcpenalty}{100}
+
+% Capítulos seguidos, sin salto de página: cada capítulo (introducción, preguntas,
+% conclusiones, bibliografía, uso de IA) empieza a continuación del anterior.
+% Se quita el \clearpage de \chapter y se reduce el espacio antes del título.
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\par\bigskip}{}{}
+\patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{\vspace*{10\p@}}{}{}
+% Títulos de capítulo: sin la línea «Capítulo N» (el título ya dice «P4: …»),
+% en \LARGE en lugar de \Huge y con menos espacio. El número del capítulo se
+% conserva internamente para numerar las secciones (4.1, 4.2…) y el índice.
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \interlinepenalty\@M
+    \LARGE\bfseries #1\par\nobreak
+    \vskip 20\p@}}
+\patchcmd{\@makeschapterhead}{\Huge \bfseries #1}{\LARGE\bfseries #1}{}{}
+\patchcmd{\@makeschapterhead}{\vskip 40\p@}{\vskip 20\p@}{}{}
+\makeatother
+
+% Formato único de citas: (Autor, año, p. XX) y (Autor, año, pp. XX–YY).
+% - Prefijos «p.» y «pp.» también cuando biblatex los añade solo (en español pondría
+%   «pág.» y «págs.»).
+% - \mknormrange: los rangos de páginas se escriben con guion largo (154–155).
+\DefineBibliographyStrings{spanish}{page = {p\adddot}, pages = {pp\adddot}}
+% biblatex en español separa los rangos con guion corto; aquí se usa el guion largo.
+\DefineBibliographyExtras{spanish}{\protected\def\bibrangedash{\textendash\penalty\hyphenpenalty}}
+\DeclareFieldFormat{postnote}{\mkpageprefix[pagination][\mknormrange]{#1}}
+\DeclareFieldFormat{multipostnote}{\mkpageprefix[pagination][\mknormrange]{#1}}
+
+% Wrappers de citas: biblatex elige «p.» (una página) o «pp.» (rango o lista).
+\newcommand{\fuente}[2]{\citep[#2]{#1}}
+\newcommand{\nombrefuente}[1]{\citet{#1}}
+
+% Referencias bibliográficas en formato APA con viñetas
+\defbibenvironment{bibliography}
+  {\list
+     {\textbullet}
+     {\setlength{\labelwidth}{1em}%
+      \setlength{\labelsep}{0.5em}%
+      \setlength{\leftmargin}{1.5em}%
+      \setlength{\itemindent}{0pt}%
+      \setlength{\itemsep}{0.4em}%
+      \setlength{\parsep}{0pt}}}
+  {\endlist}
+  {\item}
+
+% Metadatos PDF (ATS)
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=black,
+  urlcolor=blue,
+  pdftitle={Seminario de Arquitecturas de Software: Un Análisis Comparativo de Estilos Basados en Capas y Dominio},
+  pdfauthor={Team Bales},
+}
